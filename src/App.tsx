@@ -1,33 +1,9 @@
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Github, Linkedin, Mail, ExternalLink } from "lucide-react"
-
-const projects = [
-  {
-    title: "Project One",
-    description: "A brief description of your first project and what technologies were used.",
-    tags: ["React", "TypeScript", "Tailwind"],
-    link: "#",
-  },
-  {
-    title: "Project Two",
-    description: "A brief description of your second project and the problem it solves.",
-    tags: ["Node.js", "Express", "MongoDB"],
-    link: "#",
-  },
-  {
-    title: "Project Three",
-    description: "A brief description of your third project and its key features.",
-    tags: ["Next.js", "Prisma", "PostgreSQL"],
-    link: "#",
-  },
-]
-
-const skills = [
-  "JavaScript", "TypeScript", "React", "Node.js", "Python",
-  "Tailwind CSS", "Git", "PostgreSQL", "MongoDB", "AWS"
-]
+import { Mail, Check } from "lucide-react"
+import { pricingPlans } from "./data/pricingPlans"
 
 function App() {
   return (
@@ -35,10 +11,9 @@ function App() {
       {/* Header */}
       <header className="border-b">
         <div className="container flex h-16 items-center justify-between">
-          <span className="text-xl font-bold">Your Name</span>
+          <span className="text-xl font-bold">Pema Lhagyal</span>
           <nav className="flex items-center gap-4">
-            <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</a>
-            <a href="#projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Projects</a>
+            <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
             <a href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
           </nav>
         </div>
@@ -48,66 +23,59 @@ function App() {
       <section className="container py-24 md:py-32">
         <div className="flex flex-col items-center text-center gap-4">
           <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-            Hi, I'm <span className="text-primary">Your Name</span>
+            Web Development <span className="text-primary">Services</span>
           </h1>
           <p className="max-w-[600px] text-muted-foreground md:text-xl">
-            A passionate developer creating beautiful and functional web experiences.
+            Professional websites and web applications built with modern technologies.
+            From simple landing pages to complex web apps.
           </p>
           <div className="flex gap-4 mt-4">
-            <Button>
-              <Mail className="mr-2 h-4 w-4" />
-              Contact Me
+            <Button asChild>
+              <a href="#pricing">View Pricing</a>
             </Button>
-            <Button variant="outline">
-              <Github className="mr-2 h-4 w-4" />
-              GitHub
+            <Button variant="outline" asChild>
+              <a href="#contact">
+                <Mail className="mr-2 h-4 w-4" />
+                Get a Quote
+              </a>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="border-t bg-muted/50">
+      {/* Pricing Section */}
+      <section id="pricing" className="border-t bg-muted/50">
         <div className="container py-16 md:py-24">
-          <h2 className="text-3xl font-bold tracking-tighter mb-8 text-center">About Me</h2>
-          <div className="max-w-[800px] mx-auto">
-            <p className="text-muted-foreground text-center mb-8">
-              I'm a full-stack developer with a passion for building modern web applications.
-              With experience in React, Node.js, and cloud technologies, I create solutions
-              that are both beautiful and performant.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {skills.map((skill) => (
-                <Badge key={skill} variant="secondary">{skill}</Badge>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Projects Section */}
-      <section id="projects" className="border-t">
-        <div className="container py-16 md:py-24">
-          <h2 className="text-3xl font-bold tracking-tighter mb-8 text-center">Projects</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
-              <Card key={project.title} className="flex flex-col">
+          <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Pricing</h2>
+          <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
+            Transparent pricing for every budget. All packages include responsive design and modern best practices.
+          </p>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+            {pricingPlans.map((plan) => (
+              <Card key={plan.name} className={`flex flex-col ${plan.popular ? 'border-primary shadow-lg' : ''}`}>
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    {project.title}
-                    <a href={project.link} className="text-muted-foreground hover:text-foreground">
-                      <ExternalLink className="h-5 w-5" />
-                    </a>
-                  </CardTitle>
-                  <CardDescription>{project.description}</CardDescription>
+                  {plan.popular && (
+                    <Badge className="w-fit mb-2">Most Popular</Badge>
+                  )}
+                  <CardTitle>{plan.name}</CardTitle>
+                  <div className="text-3xl font-bold">{plan.price}</div>
+                  <CardDescription>{plan.description}</CardDescription>
                 </CardHeader>
-                <CardContent className="mt-auto">
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <Badge key={tag} variant="outline">{tag}</Badge>
+                <CardContent className="flex-1">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </CardContent>
+                <div className="p-6 pt-0">
+                  <Button className="w-full" variant={plan.popular ? 'default' : 'outline'} asChild>
+                    <Link to={`/plan/${plan.id}`}>Get Started</Link>
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
@@ -115,26 +83,17 @@ function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="border-t bg-muted/50">
+      <section id="contact" className="border-t">
         <div className="container py-16 md:py-24">
-          <h2 className="text-3xl font-bold tracking-tighter mb-8 text-center">Get In Touch</h2>
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" size="lg" asChild>
-              <a href="mailto:your@email.com">
+          <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Let's Work Together</h2>
+          <p className="text-muted-foreground text-center mb-8 max-w-[600px] mx-auto">
+            Have a project in mind? Get in touch for a free consultation and quote.
+          </p>
+          <div className="flex justify-center">
+            <Button size="lg" asChild>
+              <a href="mailto:pema.lhagyal.work@gmail.com">
                 <Mail className="mr-2 h-5 w-5" />
-                Email
-              </a>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer">
-                <Github className="mr-2 h-5 w-5" />
-                GitHub
-              </a>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <a href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener noreferrer">
-                <Linkedin className="mr-2 h-5 w-5" />
-                LinkedIn
+                pema.lhagyal.work@gmail.com
               </a>
             </Button>
           </div>
@@ -144,7 +103,7 @@ function App() {
       {/* Footer */}
       <footer className="border-t py-6">
         <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Your Name. All rights reserved.
+          © {new Date().getFullYear()} Pema Lhagyal. All rights reserved.
         </div>
       </footer>
     </div>
