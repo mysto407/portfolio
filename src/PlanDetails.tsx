@@ -45,7 +45,7 @@ function PlanDetails() {
           <Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Back</Link>
         </Button>
 
-        <div className="max-w-5xl mx-auto">
+        <div>
           {/* Plan header */}
           <div className="flex flex-wrap items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold">{plan.name}</h1>
