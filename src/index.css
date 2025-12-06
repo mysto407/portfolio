@@ -57,3 +57,82 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Print styles */
+@media print {
+  @page {
+    margin: 2cm;
+    size: A4;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:block {
+    display: block !important;
+  }
+
+  header, footer {
+    display: none !important;
+  }
+
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Prevent elements from breaking across pages */
+  h1, h2, h3, h4 {
+    break-after: avoid;
+  }
+
+  .card, [class*="Card"], [class*="CardContent"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Keep grid items together */
+  .grid > * {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Add spacing between sections for cleaner page breaks */
+  section, .mb-8 {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  * {
+    box-shadow: none !important;
+  }
+
+  /* Ensure backgrounds print */
+  .bg-muted\/50, .bg-primary {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Better spacing for print */
+  .py-8 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .mb-8 {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .gap-6 {
+    gap: 1rem !important;
+  }
+}

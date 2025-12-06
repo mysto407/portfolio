@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Check, ArrowLeft, Clock, Users, X, Wrench, HelpCircle, CreditCard, Shield, Calculator, Plus } from "lucide-react"
+import { Mail, Check, ArrowLeft, Clock, Users, X, Wrench, HelpCircle, CreditCard, Shield, Calculator, Plus, Printer } from "lucide-react"
 import { pricingPlans } from "./data/pricingPlans"
 
 function PlanDetails() {
@@ -41,9 +41,14 @@ function PlanDetails() {
       </header>
 
       <div className="container py-8">
-        <Button variant="ghost" size="sm" asChild className="mb-6">
-          <Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Back</Link>
-        </Button>
+        <div className="flex items-center justify-between mb-6 print:hidden">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Back</Link>
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
+            <Printer className="mr-1 h-4 w-4" />Print
+          </Button>
+        </div>
 
         <div>
           {/* Plan header */}
@@ -263,8 +268,11 @@ function PlanDetails() {
             <Card className="bg-primary text-primary-foreground">
               <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
                 <h3 className="font-bold text-lg mb-2">Ready to get started?</h3>
-                <p className="text-sm opacity-90 mb-4">Let's discuss your project</p>
-                <Button variant="secondary" asChild>
+                <p className="text-sm opacity-90 mb-3">Let's discuss your project</p>
+                <div className="hidden print:block">
+                  <p className="text-sm font-medium">pema.lhagyal.work@gmail.com</p>
+                </div>
+                <Button variant="secondary" asChild className="print:hidden">
                   <a href="mailto:pema.lhagyal.work@gmail.com">
                     <Mail className="mr-2 h-4 w-4" />
                     Get in touch

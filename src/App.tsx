@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Mail, Check, Menu, X, Send, Loader2 } from "lucide-react"
+import { Mail, Check, Menu, X, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { pricingPlans } from "./data/pricingPlans"
 
 function App() {
@@ -17,26 +18,17 @@ function App() {
   })
   const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setFormStatus("loading")
 
-    try {
-      const response = await fetch("https://formspree.io/f/xpwzgvqk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formState),
-      })
+    const subject = encodeURIComponent(`Website Inquiry from ${formState.name}`)
+    const body = encodeURIComponent(
+      `Name: ${formState.name}\nEmail: ${formState.email}\n\nMessage:\n${formState.message}`
+    )
 
-      if (response.ok) {
-        setFormStatus("success")
-        setFormState({ name: "", email: "", message: "" })
-      } else {
-        setFormStatus("error")
-      }
-    } catch {
-      setFormStatus("error")
-    }
+    window.location.href = `mailto:pema.lhagyal.work@gmail.com?subject=${subject}&body=${body}`
+    setFormStatus("success")
+    setFormState({ name: "", email: "", message: "" })
   }
 
   const scrollToSection = (id: string) => {
@@ -57,10 +49,28 @@ function App() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
             <button
+              onClick={() => scrollToSection("about")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              About
+            </button>
+            <button
+              onClick={() => scrollToSection("process")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Process
+            </button>
+            <button
               onClick={() => scrollToSection("pricing")}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Pricing
+            </button>
+            <button
+              onClick={() => scrollToSection("faq")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              FAQ
             </button>
             <button
               onClick={() => scrollToSection("contact")}
@@ -83,12 +93,30 @@ function App() {
         {/* Mobile Nav */}
         {mobileMenuOpen && (
           <nav className="md:hidden border-t bg-background py-4">
-            <div className="container flex flex-col gap-4">
+            <div className="container flex flex-col gap-2">
+              <button
+                onClick={() => scrollToSection("about")}
+                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                About
+              </button>
+              <button
+                onClick={() => scrollToSection("process")}
+                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Process
+              </button>
               <button
                 onClick={() => scrollToSection("pricing")}
                 className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 Pricing
+              </button>
+              <button
+                onClick={() => scrollToSection("faq")}
+                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                FAQ
               </button>
               <button
                 onClick={() => scrollToSection("contact")}
@@ -123,8 +151,75 @@ function App() {
         </div>
       </section>
 
+      {/* About Section */}
+      <section id="about" className="border-t scroll-mt-16">
+        <div className="container py-16 md:py-20">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-bold tracking-tighter mb-6">About Me</h2>
+            <p className="text-lg text-muted-foreground mb-4">
+              I'm a web developer passionate about creating fast, accessible, and visually appealing websites.
+              I specialize in modern technologies like React, TypeScript, and Tailwind CSS to build
+              solutions that help businesses grow online.
+            </p>
+            <p className="text-muted-foreground">
+              Every project starts with understanding your goals. Whether you need a simple landing page
+              or a complex web application, I focus on delivering clean code, responsive design, and
+              a smooth user experience that converts visitors into customers.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Process Section */}
+      <section id="process" className="border-t bg-muted/50 scroll-mt-16">
+        <div className="container py-16 md:py-20">
+          <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">How It Works</h2>
+          <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
+            A simple, transparent process from first contact to launch.
+          </p>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+            <div className="text-center">
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-bold mb-2">1. Discovery</h3>
+              <p className="text-sm text-muted-foreground">
+                We discuss your goals, requirements, and vision. I'll ask questions to understand exactly what you need.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Palette className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-bold mb-2">2. Design</h3>
+              <p className="text-sm text-muted-foreground">
+                I create mockups and wireframes for your approval before any coding begins. Revisions included.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Code className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-bold mb-2">3. Develop</h3>
+              <p className="text-sm text-muted-foreground">
+                I build your site with clean, modern code. You'll get regular updates and can provide feedback throughout.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Rocket className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-bold mb-2">4. Launch</h3>
+              <p className="text-sm text-muted-foreground">
+                Final testing, deployment, and handover. I'll make sure everything works perfectly before going live.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
-      <section id="pricing" className="border-t bg-muted/50 scroll-mt-16">
+      <section id="pricing" className="border-t scroll-mt-16">
         <div className="container py-16 md:py-20">
           <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Pricing</h2>
           <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
@@ -159,6 +254,58 @@ function App() {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="border-t bg-muted/50 scroll-mt-16">
+        <div className="container py-16 md:py-20">
+          <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Frequently Asked Questions</h2>
+          <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
+            Common questions about working together.
+          </p>
+          <Accordion type="single" collapsible className="max-w-3xl mx-auto">
+            <AccordionItem value="timeline" className="bg-background rounded-lg border px-6">
+              <AccordionTrigger>How long does a typical project take?</AccordionTrigger>
+              <AccordionContent>
+                A simple landing page takes 1-2 weeks. Multi-page websites typically take 3-4 weeks.
+                Complex web applications vary based on features but usually 6-10 weeks. I'll give you
+                an accurate timeline after our initial consultation.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="requirements" className="bg-background rounded-lg border px-6 mt-4">
+              <AccordionTrigger>What do you need from me to get started?</AccordionTrigger>
+              <AccordionContent>
+                I'll need your content (text, images, logos), access to any existing accounts (domain, hosting),
+                and a clear idea of what you want to achieve. Don't worry if you're not sure about everything—we'll
+                figure it out together during the discovery phase.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="maintenance" className="bg-background rounded-lg border px-6 mt-4">
+              <AccordionTrigger>Do you offer ongoing maintenance?</AccordionTrigger>
+              <AccordionContent>
+                Yes! I offer monthly maintenance packages starting at $100/month that include updates,
+                security patches, backups, and minor content changes. This is optional but recommended
+                for business-critical websites.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="revisions" className="bg-background rounded-lg border px-6 mt-4">
+              <AccordionTrigger>What if I'm not happy with the design?</AccordionTrigger>
+              <AccordionContent>
+                I offer revisions at each stage of the project. During the design phase, we'll work together
+                until you're completely satisfied before moving to development. If we can't reach an agreement
+                on the design direction, I offer a full refund of the deposit.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="updates" className="bg-background rounded-lg border px-6 mt-4">
+              <AccordionTrigger>Will I be able to update the website myself?</AccordionTrigger>
+              <AccordionContent>
+                Absolutely. For websites that need regular updates, I set up a content management system (CMS)
+                that lets you edit text, images, and add new pages without any coding knowledge. I'll also
+                provide training and documentation.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
 
@@ -229,23 +376,9 @@ function App() {
                         onChange={(e) => setFormState({ ...formState, message: e.target.value })}
                       />
                     </div>
-                    {formStatus === "error" && (
-                      <p className="text-sm text-red-500">
-                        Something went wrong. Please try again or email me directly.
-                      </p>
-                    )}
-                    <Button type="submit" className="w-full" disabled={formStatus === "loading"}>
-                      {formStatus === "loading" ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="mr-2 h-4 w-4" />
-                          Send Message
-                        </>
-                      )}
+                    <Button type="submit" className="w-full">
+                      <Send className="mr-2 h-4 w-4" />
+                      Send Message
                     </Button>
                   </form>
 
