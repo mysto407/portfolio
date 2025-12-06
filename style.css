@@ -1,0 +1,422 @@
+/* Original styles for page layout and initial animations */
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-color: #000000;
+    font-family: 'Noto Sans', sans-serif;
+}
+
+.logo-container {
+    position: fixed;
+    top: 20px;
+    left: 0;
+    width: 250px;
+    height: auto;
+    padding-left: 20px;
+    z-index: 1000;
+}
+
+.logo-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.container {
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+
+.columns-wrapper {
+    display: flex;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    height: calc(100vh - 40px);
+    will-change: transform;
+}
+
+.column {
+    height: 100%;
+    position: relative;
+    margin-right: 10px;
+    flex-shrink: 0;
+    will-change: transform;
+}
+
+.column:last-child {
+    margin-right: 0;
+}
+
+.item {
+    width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    aspect-ratio: var(--item-aspect-ratio);
+    will-change: transform;
+}
+
+.item-image-wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    contain: paint;
+    z-index: 1;
+}
+
+.item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.item-text {
+    position: absolute;
+    color: #DBAC5D;
+    font-family: 'Noto Sans', sans-serif;
+    opacity: 0;
+    font-size: 0px;
+    will-change: font-size, opacity;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.item-text-left {
+    top: 50%;
+    transform: translateY(-50%);
+    right: 100%;
+    margin-right: 5px;
+    writing-mode: sideways-lr;
+    text-orientation: mixed;
+    height: auto;
+    width: auto;
+    white-space: nowrap;
+    z-index: 0;
+}
+
+.item-text-bottom {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 100%;
+    margin-top: 5px;
+    width: 100%;
+    height: auto;
+    z-index: 2;
+}
+
+.scroll-indicator-circle {
+    position: fixed;
+    bottom: 50px;
+    left: 50px;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    pointer-events: none;
+    z-index: 1001;
+}
+
+
+/* Split section styles - container for the new content */
+
+.split-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 500;
+    pointer-events: none;
+    /* Will be set to auto by GSAP when active */
+}
+
+.split-top,
+.split-bottom {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background-color: #000000;
+    will-change: transform;
+}
+
+.split-top {
+    top: 0;
+    transform-origin: center bottom;
+    transform: scaleY(0);
+}
+
+.split-bottom {
+    bottom: 0;
+    transform-origin: center top;
+    transform: scaleY(0);
+}
+
+
+/* Styles for the content within the split section - LATEST VERSION */
+
+.split-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    /* Max width for the content area */
+    max-width: 1400px;
+    /* Absolute max width */
+    /* No explicit background color, default text color to dark */
+    color: #333333;
+    /* Default dark text color, contrasts with #DBAC5D */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Height is auto, with max-height and padding */
+    height: auto;
+    max-height: calc(100vh - 80px);
+    /* Max height considering potential viewport limitations and padding */
+    padding: 0px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    /* Allow scrolling if content overflows */
+    opacity: 0;
+    /* Controlled by GSAP */
+    z-index: 501;
+}
+
+.split-content-columns-container {
+    display: flex;
+    width: 100%;
+    height: auto;
+    /* Height based on content */
+    align-items: stretch;
+    gap: 30px;
+    position: relative;
+}
+
+.split-content-column {
+    display: flex;
+    flex-direction: column;
+    padding: 00px;
+    box-sizing: border-box;
+}
+
+.split-content-column-left {
+    flex: 1.5;
+    align-items: center;
+    text-align: left;
+    position: absolute;
+    left: 5px;
+    top: 33.3%;
+    height: 250px;
+    width: 230px;
+}
+
+.split-content-column-middle {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 300px;
+}
+
+.split-content-column-right {
+    flex: 3;
+    text-align: left;
+}
+
+
+/* Additional styles for sliding number */
+
+.content-large-number {
+    font-family: 'Nippo', sans-serif;
+    font-size: clamp(4rem, 10vw, 8rem);
+    font-weight: bold;
+    color: #987c3a;
+    line-height: 1;
+    margin-bottom: 0.2em;
+    font-variant-numeric: tabular-nums;
+    min-width: 3ch;
+    display: flex;
+    align-items: baseline;
+}
+
+.number-static {
+    display: inline-block;
+}
+
+.number-sliding-container {
+    position: relative;
+    display: inline-block;
+    height: 1em;
+    overflow: hidden;
+    width: 1ch;
+}
+
+.number-sliding-digits {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    transition: none;
+}
+
+.sliding-digit {
+    height: 1em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content-large-title {
+    font-family: 'Britney', cursive;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: bold;
+    /* Dark color for text */
+    color: #987c3a;
+    line-height: 1.1;
+    margin-bottom: 0.3em;
+}
+
+.content-divider {
+    width: 100%;
+    border: none;
+    height: 2px;
+    /* Dark color for line */
+    background-color: #40310a;
+    margin-top: 0.5em;
+    margin-bottom: 1.5em;
+}
+
+.content-summary,
+.content-description {
+    font-family: 'Quicksand', sans-serif;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    /* Dark color for text */
+    color: #987c3a;
+    line-height: 1.7;
+}
+
+.content-summary {
+    max-width: 250px;
+}
+
+.content-description {
+    max-width: 500px;
+}
+
+.image-placeholder {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 0.7;
+    /* Same as grid cells: 630/846 */
+    min-height: 200px;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.image-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+/* Responsive adjustments for smaller screens */
+
+@media (max-width: 900px) {
+    .split-content {
+        padding: 20px;
+        width: 95%;
+        /* Adjust width for smaller screens */
+        max-height: calc(100vh - 40px);
+        /* Adjust max-height considering padding */
+    }
+    .split-content-columns-container {
+        flex-direction: column;
+        height: auto;
+        gap: 30px;
+        align-items: center;
+    }
+    .split-content-column {
+        width: 100%;
+        max-width: 500px;
+        padding: 15px 0;
+        align-items: center;
+        text-align: center;
+    }
+    .split-content-column-left {
+        order: 1;
+        position: relative;
+        left: auto;
+        top: auto;
+        align-items: center;
+        text-align: center;
+    }
+    .split-content-column-middle {
+        order: 2;
+        width: 80%;
+        margin-left: 0;
+    }
+    .split-content-column-right {
+        text-align: center;
+        order: 3;
+    }
+    .content-large-number {
+        font-size: clamp(3.5rem, 12vw, 6rem);
+    }
+    .content-large-title {
+        font-size: clamp(2rem, 8vw, 3.5rem);
+    }
+    .content-summary,
+    .content-description {
+        font-size: clamp(0.85rem, 2.5vw, 1rem);
+        max-width: 100%;
+    }
+    .image-placeholder {
+        height: 250px;
+        max-height: 50vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .split-content {
+        padding: 15px;
+        width: 100%;
+        /* Full width on very small screens */
+        max-height: calc(100vh - 20px);
+        /* Adjust max-height considering less padding */
+        border-left: none;
+        border-right: none;
+    }
+    .split-content-columns-container {
+        gap: 20px;
+    }
+    .split-content-column-middle {
+        width: 90%;
+        /* Image placeholder can be a bit wider */
+    }
+}
