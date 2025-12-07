@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Mail, Check, Menu, X, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { pricingPlans } from "./data/pricingPlans"
+import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect"
 import {
   SiReact,
   SiTypescript,
@@ -70,9 +71,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-background">
+      <BackgroundRippleEffect />
       {/* Header */}
-      <header className="border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
+      <header className="z-10 border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <span className="text-xl font-bold">Pema Lhagyal</span>
 
@@ -159,6 +161,7 @@ function App() {
         )}
       </header>
 
+      <main className="relative z-10">
       {/* Hero Section */}
       <section className="container py-20 md:py-28">
         <div className="flex flex-col items-center text-center gap-4">
@@ -452,9 +455,10 @@ function App() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
-      <footer className="border-t py-8 bg-muted/30">
+      <footer className="relative z-10 border-t py-8 bg-muted/30">
         <div className="container">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
