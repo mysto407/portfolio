@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -39,20 +38,6 @@ const techStack = [
   { name: "Docker", icon: SiDocker },
   { name: "Vercel", icon: SiVercel },
 ]
-
-// Animation variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-}
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 }
-  }
-}
 
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -175,30 +160,16 @@ function App() {
       </header>
 
       {/* Hero Section */}
-      <section className="container py-20 md:py-28 hero-gradient">
-        <motion.div
-          className="flex flex-col items-center text-center gap-4"
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-        >
-          <motion.h1
-            className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl"
-            variants={fadeInUp}
-          >
+      <section className="container py-20 md:py-28">
+        <div className="flex flex-col items-center text-center gap-4">
+          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
             Web Development Services
-          </motion.h1>
-          <motion.p
-            className="max-w-[600px] text-muted-foreground md:text-xl"
-            variants={fadeInUp}
-          >
+          </h1>
+          <p className="max-w-[600px] text-muted-foreground md:text-xl">
             Professional websites and web applications built with modern technologies.
             From simple landing pages to complex web apps.
-          </motion.p>
-          <motion.div
-            className="flex flex-wrap justify-center gap-4 mt-4"
-            variants={fadeInUp}
-          >
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 mt-4">
             <Button onClick={() => scrollToSection("pricing")} className="shadow-lg hover:shadow-xl transition-shadow">
               View Pricing
             </Button>
@@ -206,187 +177,148 @@ function App() {
               <Mail className="mr-2 h-4 w-4" />
               Get a Quote
             </Button>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* Tech Stack Section */}
       <section className="border-t scroll-mt-16">
         <div className="container py-16 md:py-20">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="text-center"
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter mb-4">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tighter mb-4">
               Technologies I Use
-            </motion.h2>
-            <motion.p variants={fadeInUp} className="text-muted-foreground mb-12 max-w-[600px] mx-auto">
+            </h2>
+            <p className="text-muted-foreground mb-12 max-w-[600px] mx-auto">
               Modern tools and frameworks to build fast, scalable, and maintainable applications.
-            </motion.p>
-            <motion.div
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-5xl mx-auto"
-              variants={staggerContainer}
-            >
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-5xl mx-auto">
               {techStack.map((tech) => (
-                <motion.div
+                <div
                   key={tech.name}
-                  variants={fadeInUp}
                   className="flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-muted/50 hover:bg-muted transition-colors"
                 >
                   <tech.icon className="w-8 h-8" />
                   <span className="text-sm font-medium">{tech.name}</span>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* About Section */}
       <section id="about" className="border-t scroll-mt-16">
         <div className="container py-16 md:py-20">
-          <motion.div
-            className="max-w-3xl mx-auto text-center"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter mb-6">About Me</motion.h2>
-            <motion.p variants={fadeInUp} className="text-lg text-muted-foreground mb-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-bold tracking-tighter mb-6">About Me</h2>
+            <p className="text-lg text-muted-foreground mb-4">
               I'm a web developer passionate about creating fast, accessible, and visually appealing websites.
               I specialize in modern technologies like React, TypeScript, and Tailwind CSS to build
               solutions that help businesses grow online.
-            </motion.p>
-            <motion.p variants={fadeInUp} className="text-muted-foreground">
+            </p>
+            <p className="text-muted-foreground">
               Every project starts with understanding your goals. Whether you need a simple landing page
               or a complex web application, I focus on delivering clean code, responsive design, and
               a smooth user experience that converts visitors into customers.
-            </motion.p>
-          </motion.div>
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Process Section */}
       <section id="process" className="border-t bg-muted/50 scroll-mt-16">
         <div className="container py-16 md:py-20">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter mb-4 text-center">How It Works</motion.h2>
-            <motion.p variants={fadeInUp} className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
-              A simple, transparent process from first contact to launch.
-            </motion.p>
-            <motion.div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto" variants={staggerContainer}>
-              <motion.div variants={fadeInUp} className="text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
-                  <MessageSquare className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-bold mb-2">1. Discovery</h3>
-                <p className="text-sm text-muted-foreground">
-                  We discuss your goals, requirements, and vision. I'll ask questions to understand exactly what you need.
-                </p>
-              </motion.div>
-              <motion.div variants={fadeInUp} className="text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
-                  <Palette className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-bold mb-2">2. Design</h3>
-                <p className="text-sm text-muted-foreground">
-                  I create mockups and wireframes for your approval before any coding begins. Revisions included.
-                </p>
-              </motion.div>
-              <motion.div variants={fadeInUp} className="text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
-                  <Code className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-bold mb-2">3. Develop</h3>
-                <p className="text-sm text-muted-foreground">
-                  I build your site with clean, modern code. You'll get regular updates and can provide feedback throughout.
-                </p>
-              </motion.div>
-              <motion.div variants={fadeInUp} className="text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
-                  <Rocket className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-bold mb-2">4. Launch</h3>
-                <p className="text-sm text-muted-foreground">
-                  Final testing, deployment, and handover. I'll make sure everything works perfectly before going live.
-                </p>
-              </motion.div>
-            </motion.div>
-          </motion.div>
+          <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">How It Works</h2>
+          <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
+            A simple, transparent process from first contact to launch.
+          </p>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+            <div className="text-center">
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
+                <MessageSquare className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-bold mb-2">1. Discovery</h3>
+              <p className="text-sm text-muted-foreground">
+                We discuss your goals, requirements, and vision. I'll ask questions to understand exactly what you need.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
+                <Palette className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-bold mb-2">2. Design</h3>
+              <p className="text-sm text-muted-foreground">
+                I create mockups and wireframes for your approval before any coding begins. Revisions included.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
+                <Code className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-bold mb-2">3. Develop</h3>
+              <p className="text-sm text-muted-foreground">
+                I build your site with clean, modern code. You'll get regular updates and can provide feedback throughout.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
+                <Rocket className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-bold mb-2">4. Launch</h3>
+              <p className="text-sm text-muted-foreground">
+                Final testing, deployment, and handover. I'll make sure everything works perfectly before going live.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Pricing Section */}
       <section id="pricing" className="border-t scroll-mt-16">
         <div className="container py-16 md:py-20">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter mb-4 text-center">Pricing</motion.h2>
-            <motion.p variants={fadeInUp} className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
-              Transparent pricing for every budget. All packages include responsive design and modern best practices.
-            </motion.p>
-            <motion.div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto" variants={staggerContainer}>
-              {pricingPlans.map((plan) => (
-                <motion.div key={plan.name} variants={fadeInUp}>
-                  <Card className={`card-glow flex flex-col h-full ${plan.popular ? 'border-primary shadow-lg gradient-border' : ''}`}>
-                    <CardHeader>
-                      {plan.popular && (
-                        <Badge className="w-fit mb-2">Most Popular</Badge>
-                      )}
-                      <CardTitle>{plan.name}</CardTitle>
-                      <div className="text-3xl font-bold">{plan.price}</div>
-                      <CardDescription>{plan.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <ul className="space-y-3">
-                        {plan.features.map((feature) => (
-                          <li key={feature} className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                            <span className="text-sm">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                    <div className="p-6 pt-0">
-                      <Button className="w-full" variant={plan.popular ? 'default' : 'outline'} asChild>
-                        <Link to={`/plan/${plan.id}`}>View Details</Link>
-                      </Button>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          </motion.div>
+          <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Pricing</h2>
+          <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
+            Transparent pricing for every budget. All packages include responsive design and modern best practices.
+          </p>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+            {pricingPlans.map((plan) => (
+              <Card key={plan.name} className={`card-glow flex flex-col h-full ${plan.popular ? 'border-primary shadow-lg gradient-border' : ''}`}>
+                <CardHeader>
+                  {plan.popular && (
+                    <Badge className="w-fit mb-2">Most Popular</Badge>
+                  )}
+                  <CardTitle>{plan.name}</CardTitle>
+                  <div className="text-3xl font-bold">{plan.price}</div>
+                  <CardDescription>{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <div className="p-6 pt-0">
+                  <Button className="w-full" variant={plan.popular ? 'default' : 'outline'} asChild>
+                    <Link to={`/plan/${plan.id}`}>View Details</Link>
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* FAQ Section */}
       <section id="faq" className="border-t bg-muted/50 scroll-mt-16">
         <div className="container py-16 md:py-20">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tighter mb-4 text-center">Frequently Asked Questions</motion.h2>
-            <motion.p variants={fadeInUp} className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
-              Common questions about working together.
-            </motion.p>
-          </motion.div>
+          <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Frequently Asked Questions</h2>
+          <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
+            Common questions about working together.
+          </p>
           <Accordion type="single" collapsible className="max-w-3xl mx-auto">
             <AccordionItem value="timeline" className="bg-background rounded-lg border px-6">
               <AccordionTrigger>How long does a typical project take?</AccordionTrigger>
