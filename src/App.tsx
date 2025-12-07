@@ -185,7 +185,7 @@ function App() {
       </section>
 
       {/* Tech Stack Section */}
-      <section className="border-t scroll-mt-16">
+      <section className="scroll-mt-16">
         <div className="container py-16 md:py-20">
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tighter mb-4">
@@ -210,7 +210,7 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="border-t scroll-mt-16">
+      <section id="about" className=" scroll-mt-16">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold tracking-tighter mb-6">About Me</h2>
