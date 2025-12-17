@@ -1,43 +1,29 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-
 interface TextRing3DProps {
   text: string
   className?: string
 }
 
 export function TextRing3D({ text, className = "" }: TextRing3DProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
   // Duplicate text to fill the full ring
   const fullText = `${text}  •  ${text}  •  `
   const characters = fullText.split("")
-
-  // Rotation animation
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    let rotation = 0
-    let animationId: number
-
-    const animate = () => {
-      rotation -= 0.3
-      container.style.transform = `rotateX(-15deg) rotateY(${rotation}deg)`
-      animationId = requestAnimationFrame(animate)
-    }
-
-    animate()
-
-    return () => cancelAnimationFrame(animationId)
-  }, [])
 
   const radius = 280
   const anglePerChar = 360 / characters.length
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
+      <style>{`
+        @keyframes rotateRing {
+          from { transform: rotateX(-15deg) rotateY(0deg); }
+          to { transform: rotateX(-15deg) rotateY(-360deg); }
+        }
+        .text-ring-3d {
+          animation: rotateRing 20s linear infinite;
+        }
+      `}</style>
       <div
         className="relative"
         style={{
@@ -46,8 +32,7 @@ export function TextRing3D({ text, className = "" }: TextRing3DProps) {
         }}
       >
         <div
-          ref={containerRef}
-          className="relative"
+          className="relative text-ring-3d"
           style={{
             width: `${radius * 2}px`,
             height: "60px",

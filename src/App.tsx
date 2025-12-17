@@ -11,6 +11,7 @@ import { pricingPlans } from "./data/pricingPlans"
 import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect"
 import { TechStackBeam } from "@/components/TechStackBeam"
 import { TextRing3D } from "@/components/TextRing3D"
+import { HyperText } from "@/components/ui/hyper-text"
 
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -138,10 +139,7 @@ function App() {
       <section className="container py-20 md:py-28">
         <div className="flex flex-col items-center text-center gap-4">
           <TextRing3D text="Web Development Services" className="h-[160px] mb-12" />
-          <p className="max-w-[600px] text-muted-foreground md:text-xl">
-            Professional websites and web applications built with modern technologies.
-            From simple landing pages to complex web apps.
-          </p>
+          <HyperText className="max-w-[600px] text-muted-foreground text-sm md:text-base font-normal" delay={300}>Professional websites and web applications built with modern technologies. From simple landing pages to complex web apps.</HyperText>
           <div className="flex flex-wrap justify-center gap-4 mt-4">
             <Button onClick={() => scrollToSection("pricing")} className="shadow-lg hover:shadow-xl transition-shadow">
               View Pricing
