@@ -71,7 +71,7 @@ function App() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-hidden">
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-background">
       <BackgroundRippleEffect />
       {/* Header */}
       <header className="z-10 border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

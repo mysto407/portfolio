@@ -71,7 +71,7 @@ function App() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-hidden">
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-background">
       <BackgroundRippleEffect />
       {/* Header */}
       <header className="z-10 border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -210,7 +210,7 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className=" scroll-mt-16">
+      <section id="about" className="border-t scroll-mt-16">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold tracking-tighter mb-6">About Me</h2>

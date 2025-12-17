@@ -55,7 +55,7 @@ export const BackgroundRippleEffect = ({
   return (
     <div
       className={cn(
-        "fixed inset-0 h-full w-full pointer-events-none overflow-hidden",
+        "fixed inset-0 z-0 h-full w-full pointer-events-none overflow-hidden",
         "[--cell-border-color:var(--color-neutral-300)] [--cell-fill-color:var(--color-neutral-100)] [--cell-shadow-color:var(--color-neutral-500)]",
         "dark:[--cell-border-color:var(--color-neutral-700)] dark:[--cell-fill-color:var(--color-neutral-900)] dark:[--cell-shadow-color:var(--color-neutral-800)]",
       )}
