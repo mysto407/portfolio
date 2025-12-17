@@ -22,17 +22,26 @@ function App() {
   })
   const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setFormStatus("loading")
 
-    const subject = encodeURIComponent(`Website Inquiry from ${formState.name}`)
-    const body = encodeURIComponent(
-      `Name: ${formState.name}\nEmail: ${formState.email}\n\nMessage:\n${formState.message}`
-    )
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState),
+      })
 
-    window.location.href = `mailto:pema.lhagyal.work@gmail.com?subject=${subject}&body=${body}`
-    setFormStatus("success")
-    setFormState({ name: "", email: "", message: "" })
+      if (!response.ok) {
+        throw new Error("Failed to send")
+      }
+
+      setFormStatus("success")
+      setFormState({ name: "", email: "", message: "" })
+    } catch {
+      setFormStatus("error")
+    }
   }
 
   const scrollToSection = (id: string) => {
@@ -397,10 +406,21 @@ function App() {
                         onChange={(e) => setFormState({ ...formState, message: e.target.value })}
                       />
                     </div>
-                    <Button type="submit" className="w-full">
-                      <Send className="mr-2 h-4 w-4" />
-                      Send Message
+                    <Button type="submit" className="w-full" disabled={formStatus === "loading"}>
+                      {formStatus === "loading" ? (
+                        <>Sending...</>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          Send Message
+                        </>
+                      )}
                     </Button>
+                    {formStatus === "error" && (
+                      <p className="text-sm text-red-500 text-center mt-2">
+                        Failed to send message. Please try again or email directly.
+                      </p>
+                    )}
                   </form>
 
                   <div className="mt-6 pt-6 border-t text-center">
