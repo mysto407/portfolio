@@ -14,6 +14,7 @@ export const pricingPlans = [
     popular: false,
     details: {
       overview: "The Starter package is designed for individuals, freelancers, and small businesses who need a professional online presence without complexity. You'll receive a beautifully crafted single-page website that effectively communicates your brand, services, and contact information. This streamlined approach ensures visitors get all the essential information in one seamless scrolling experience.",
+      sampleUrl: "https://starter-demo.pemalhalyal.com",
       deliverables: [
         "Custom single-page website design tailored to your brand",
         "Mobile-first responsive layout (works on all devices)",
@@ -21,6 +22,8 @@ export const pricingPlans = [
         "Functional contact form with email notifications",
         "Basic on-page SEO (meta tags, titles, descriptions, alt texts)",
         "Google Analytics integration for tracking visitors",
+        "Google Business Profile basic setup (for local businesses)",
+        "Privacy Policy template page",
         "Social media icon links",
         "Fast-loading optimized images (WebP format)",
         "SSL certificate setup (HTTPS)",
@@ -30,7 +33,7 @@ export const pricingPlans = [
         {
           step: 1,
           title: "Discovery Call",
-          description: "We'll discuss your business, goals, target audience, and design preferences. I'll gather all necessary information including your logo, brand colours, and content.",
+          description: "We'll discuss your business, goals, target audience, and design preferences. You'll receive a Content Workbook to easily gather your text, images, and branding materials.",
           duration: "30-60 minutes",
         },
         {
@@ -67,6 +70,7 @@ export const pricingPlans = [
       ],
       notIncluded: [
         "Domain registration (I can guide you through purchasing)",
+        "Email hosting setup (e.g., Google Workspace, Zoho Mail)",
         "Ongoing hosting fees (typically $0-20/month)",
         "Stock photography (I can recommend affordable sources)",
         "Logo design (available as an add-on)",
@@ -79,6 +83,7 @@ export const pricingPlans = [
       addOns: [
         { name: "Logo Design", price: "$300 AUD" },
         { name: "Copywriting (per section)", price: "$100 AUD" },
+        { name: "Email hosting setup", price: "$50 AUD" },
         { name: "Additional revision round", price: "$150 AUD" },
         { name: "Stock photo sourcing (10 images)", price: "$50 AUD" },
         { name: "Monthly maintenance", price: "$100 AUD/month" },
@@ -125,7 +130,7 @@ export const pricingPlans = [
       ],
       totalHours: "12 hours",
       hourlyRate: "$100/hr",
-      guarantee: "100% satisfaction guarantee. If you're not happy with the initial design direction after the mockup phase, I'll provide a full refund.",
+      guarantee: "100% satisfaction guarantee. If you're not happy with the initial design direction after the mockup phase, I'll provide a full refund. You own 100% of the code and assets upon final payment—no vendor lock-in.",
       payment: "50% deposit to begin, 50% upon completion before launch.",
     },
   },
@@ -146,9 +151,11 @@ export const pricingPlans = [
     popular: true,
     details: {
       overview: "The Professional package is built for established businesses ready to elevate their online presence. With multiple pages, content management system integration, and advanced SEO, you'll have a powerful platform to attract and convert customers. This package gives you full control over your content while maintaining a professional, high-performance website that ranks well in search engines.",
+      sampleUrl: "https://professional-demo.pemalhalyal.com",
       deliverables: [
         "Up to 5 custom-designed pages (Home, About, Services, Blog, Contact)",
         "Content Management System (WordPress, Sanity, or Contentful)",
+        "Initial content entry for all pages (you provide the content)",
         "Mobile-first responsive design across all devices",
         "Advanced contact forms with multiple fields and validation",
         "Integration with email marketing tools (Mailchimp, ConvertKit)",
@@ -165,12 +172,13 @@ export const pricingPlans = [
         "Security hardening and spam protection",
         "Cross-browser testing (Chrome, Firefox, Safari, Edge)",
         "Accessibility compliance (WCAG 2.1 Level AA)",
+        "Live CMS training session + recorded video tutorials",
       ],
       process: [
         {
           step: 1,
           title: "Discovery & Strategy",
-          description: "In-depth consultation to understand your business, competitors, target audience, and goals. We'll map out the site structure, user journeys, and content strategy.",
+          description: "In-depth consultation to understand your business, competitors, target audience, and goals. You'll receive a Content Workbook to organize your materials while we map out site structure and user journeys.",
           duration: "1-2 hours",
         },
         {
@@ -228,6 +236,7 @@ export const pricingPlans = [
       ],
       notIncluded: [
         "Domain registration ($15-20/year)",
+        "Email hosting setup (e.g., Google Workspace, Microsoft 365)",
         "Premium hosting beyond free tier (typically $20-50/month for WordPress)",
         "Stock photography and videos",
         "Professional copywriting (available as add-on)",
@@ -243,7 +252,7 @@ export const pricingPlans = [
         { name: "Logo & Brand Identity", price: "$800 AUD" },
         { name: "Professional Copywriting (per page)", price: "$200 AUD" },
         { name: "Additional revision round", price: "$200 AUD" },
-        { name: "E-commerce lite (up to 10 products)", price: "$1,000 AUD" },
+        { name: "E-commerce lite (10 products, Stripe Checkout, flat-rate shipping only)", price: "$1,000 AUD" },
         { name: "Booking/Appointment system", price: "$500 AUD" },
         { name: "Live chat integration", price: "$200 AUD" },
         { name: "Monthly maintenance & updates", price: "$200 AUD/month" },
@@ -268,11 +277,11 @@ export const pricingPlans = [
         },
         {
           question: "Will I be able to edit the website myself?",
-          answer: "Yes! The CMS provides an intuitive interface for editing text, images, and blog posts. I'll provide a training session and documentation to ensure you're comfortable making updates.",
+          answer: "Yes! The CMS provides an intuitive interface for editing text, images, and blog posts. You'll receive a live training session plus recorded video tutorials you can reference anytime, so you'll never feel stuck.",
         },
         {
           question: "Do you provide the hosting?",
-          answer: "I'll set up hosting on a platform that suits your needs (Vercel for React/Next.js, or WP Engine/SiteGround for WordPress). You'll own the hosting account and pay the provider directly.",
+          answer: "I'll set up hosting on a platform that suits your needs. Modern stack (Next.js + Sanity) hosting is often free on Vercel. WordPress hosting typically costs $20-50/month for good performance (WP Engine, SiteGround). You'll own the hosting account and pay the provider directly.",
         },
       ],
       timeline: "3-4 weeks",
@@ -290,14 +299,14 @@ export const pricingPlans = [
         { item: "Discovery & strategy session", hours: "2 hrs", cost: "$200" },
         { item: "Content planning & sitemap", hours: "3 hrs", cost: "$300" },
         { item: "UI/UX design (5 pages)", hours: "10 hrs", cost: "$1,000" },
-        { item: "Frontend development", hours: "12 hrs", cost: "$1,200" },
-        { item: "CMS setup & configuration", hours: "4 hrs", cost: "$400" },
+        { item: "Frontend development", hours: "10 hrs", cost: "$1,000" },
+        { item: "CMS setup & content modeling", hours: "6 hrs", cost: "$600" },
+        { item: "Initial content entry (up to 5 pages)", hours: "2 hrs", cost: "$200" },
         { item: "SEO implementation", hours: "2 hrs", cost: "$200" },
-        { item: "Testing & QA", hours: "2 hrs", cost: "$200" },
       ],
       totalHours: "35 hours",
       hourlyRate: "$100/hr",
-      guarantee: "100% satisfaction guarantee through the design phase. I'll work with you until the design is right, or provide a full refund before development begins.",
+      guarantee: "100% satisfaction guarantee through the design phase. I'll work with you until the design is right, or provide a full refund before development begins. You own 100% of the code and assets upon final payment—no vendor lock-in.",
       payment: "40% deposit to begin, 30% after design approval, 30% upon completion.",
     },
   },
@@ -307,21 +316,22 @@ export const pricingPlans = [
     price: "$8,000+ AUD",
     description: "Full-scale web applications with custom features.",
     features: [
-      "Unlimited pages",
+      "Scalable architecture",
       "Custom web application",
       "Database integration",
       "User authentication",
       "Payment processing",
       "API integrations",
-      "Unlimited revisions",
+      "Iterative development",
       "3 months support",
     ],
     popular: false,
     details: {
       overview: "The Enterprise package is for businesses that need more than a website—they need a fully custom web application. Whether you're building an e-commerce platform, a SaaS product, a membership site, or a complex booking system, I'll architect and develop a scalable solution tailored to your exact requirements. This package includes everything from database design to payment processing, user authentication to third-party integrations.",
+      sampleUrl: "https://enterprise-demo.pemalhalyal.com",
       deliverables: [
         "Fully custom web application built to your specifications",
-        "Unlimited pages and content sections",
+        "Scalable architecture with unlimited content pages",
         "User registration and authentication system (email, social login, 2FA)",
         "Role-based access control (admin, staff, customers, etc.)",
         "Custom database design and integration (PostgreSQL/MongoDB)",
@@ -338,16 +348,16 @@ export const pricingPlans = [
         "Performance optimization and caching",
         "Automated testing suite",
         "CI/CD pipeline setup",
-        "Comprehensive documentation",
+        "Developer documentation & codebase walkthrough",
         "Team training sessions",
         "WCAG 2.1 Level AA accessibility",
-        "GDPR and privacy compliance features",
+        "GDPR-ready technical features (cookie consent, data export—not legal advice)",
       ],
       process: [
         {
           step: 1,
-          title: "Requirements Gathering",
-          description: "Extensive discovery sessions to document every feature, user flow, and business requirement. We'll create detailed user stories and acceptance criteria.",
+          title: "Paid Discovery Workshop",
+          description: "A focused workshop ($500, credited if you proceed) to document every feature, user flow, and business requirement. You'll receive a Requirements Workbook and detailed project scope before committing to the full build.",
           duration: "3-5 days",
         },
         {
@@ -410,6 +420,7 @@ export const pricingPlans = [
       ],
       notIncluded: [
         "Domain registration",
+        "Email hosting setup (e.g., Google Workspace, Microsoft 365)",
         "Ongoing cloud infrastructure costs (varies by usage, typically $50-500/month)",
         "Third-party API subscription fees (Stripe, SendGrid, etc.)",
         "Stock assets and premium design resources",
@@ -428,7 +439,8 @@ export const pricingPlans = [
         { name: "Automated reporting system", price: "$1,000 AUD" },
         { name: "API documentation portal", price: "$800 AUD" },
         { name: "Load testing & optimization", price: "$1,000 AUD" },
-        { name: "Extended support (per month)", price: "$500 AUD/month" },
+        { name: "Extended support (per month)", price: "$1,000 AUD/month" },
+        { name: "24/7 critical response SLA", price: "$1,500 AUD/month" },
         { name: "Retainer for ongoing development", price: "$2,000 AUD/month" },
       ],
       faqs: [
@@ -458,7 +470,11 @@ export const pricingPlans = [
         },
         {
           question: "Can you provide ongoing maintenance?",
-          answer: "Yes, I offer a monthly retainer package ($500-2,000/month depending on needs) that includes server monitoring, security updates, bug fixes, minor features, and priority support.",
+          answer: "Yes, I offer monthly support starting at $1,000/month for enterprise apps (includes server monitoring, security updates, bug fixes, and business-hours support). For 24/7 critical response, add the SLA package.",
+        },
+        {
+          question: "What are the support hours?",
+          answer: "Standard support is Monday-Friday, 9am-5pm AEST with response within 24 hours. Critical issues (site down, security breach) are addressed same-day. 24/7 support is available as an add-on for mission-critical applications.",
         },
         {
           question: "What's your development process like?",
@@ -491,7 +507,7 @@ export const pricingPlans = [
       totalHours: "80+ hours",
       hourlyRate: "$100/hr",
       note: "Final price depends on project complexity. Additional features quoted separately.",
-      guarantee: "Milestone-based satisfaction guarantee. At each major milestone, you can review progress and request changes. If we can't reach agreement on direction, you pay only for completed work.",
+      guarantee: "Milestone-based satisfaction guarantee. At each major milestone, you can review progress and request changes. If we can't reach agreement on direction, you pay only for completed work. You own 100% of the code, documentation, and assets upon final payment—no vendor lock-in.",
       payment: "30% deposit to begin, 30% at design approval, 20% at development completion, 20% at launch.",
     },
   },

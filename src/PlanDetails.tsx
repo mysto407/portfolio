@@ -1,18 +1,70 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Check, ArrowLeft, Clock, Users, X, Wrench, HelpCircle, CreditCard, Shield, Calculator, Plus, Printer } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Check, ArrowLeft, Clock, Users, X, Wrench, HelpCircle, CreditCard, Shield, Calculator, Plus, Printer, Send, ArrowRight, ExternalLink } from "lucide-react"
 import { pricingPlans } from "./data/pricingPlans"
+
+const planSuggestions: Record<string, { id: string; text: string }[]> = {
+  starter: [
+    { id: "professional", text: "Need a CMS or more pages? Check out the Professional plan for self-editing and SEO power." },
+  ],
+  professional: [
+    { id: "starter", text: "Just need a simple landing page? The Starter plan might be perfect." },
+    { id: "enterprise", text: "Need custom features like payments or user accounts? See the Enterprise plan." },
+  ],
+  enterprise: [
+    { id: "professional", text: "Don't need custom app features? The Professional plan offers great value for multi-page sites." },
+  ],
+}
 
 function PlanDetails() {
   const { planId } = useParams()
   const plan = pricingPlans.find((p) => p.id === planId)
+  const [formState, setFormState] = useState({
+    name: "",
+    email: "",
+    message: "",
+  })
+  const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setFormStatus("loading")
+
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formState,
+          message: `[Interested in: ${plan?.name} - ${plan?.price}]\n\n${formState.message}`,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to send")
+      }
+
+      setFormStatus("success")
+      setFormState({ name: "", email: "", message: "" })
+    } catch {
+      setFormStatus("error")
+    }
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [planId])
+    if (plan) {
+      document.title = `${plan.name} Plan | Pema Lhagyal`
+    }
+    return () => {
+      document.title = "Pema Lhagyal | Web Development Services"
+    }
+  }, [planId, plan])
 
   if (!plan) {
     return (
@@ -57,7 +109,19 @@ function PlanDetails() {
             {plan.popular && <Badge>Most Popular</Badge>}
             <span className="text-3xl font-bold text-primary ml-auto">{plan.price}</span>
           </div>
-          <p className="text-muted-foreground mb-6">{plan.details.overview}</p>
+          <p className="text-muted-foreground mb-4">{plan.details.overview}</p>
+
+          {/* Sample project link */}
+          {'sampleUrl' in plan.details && plan.details.sampleUrl && (
+            <div className="mb-6 print:hidden">
+              <Button variant="outline" size="sm" asChild>
+                <a href={plan.details.sampleUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  View Live Example
+                </a>
+              </Button>
+            </div>
+          )}
 
           {/* Quick info bar */}
           <div className="flex flex-wrap gap-4 mb-8 text-sm">
@@ -265,22 +329,99 @@ function PlanDetails() {
               </CardContent>
             </Card>
 
-            <Card className="bg-primary text-primary-foreground">
-              <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
-                <h3 className="font-bold text-lg mb-2">Ready to get started?</h3>
-                <p className="text-sm opacity-90 mb-3">Let's discuss your project</p>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Ready to get started?</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
                 <div className="hidden print:block">
-                  <p className="text-sm font-medium">pema.lhagyal.work@gmail.com</p>
+                  <p className="text-sm">Contact: pema.lhagyal.work@gmail.com</p>
                 </div>
-                <Button variant="secondary" asChild className="print:hidden">
-                  <a href="mailto:pema.lhagyal.work@gmail.com">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Get in touch
-                  </a>
-                </Button>
+                <div className="print:hidden">
+                  {formStatus === "success" ? (
+                    <div className="text-center py-4">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Check className="h-5 w-5 text-primary" />
+                      </div>
+                      <p className="font-medium mb-1">Message sent!</p>
+                      <p className="text-sm text-muted-foreground mb-3">I'll get back to you soon.</p>
+                      <Button variant="outline" size="sm" onClick={() => setFormStatus("idle")}>
+                        Send another
+                      </Button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                      <Input
+                        type="text"
+                        placeholder="Your name"
+                        required
+                        value={formState.name}
+                        onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+                      />
+                      <Input
+                        type="email"
+                        placeholder="your@email.com"
+                        required
+                        value={formState.email}
+                        onChange={(e) => setFormState({ ...formState, email: e.target.value })}
+                      />
+                      <Textarea
+                        placeholder="Tell me about your project..."
+                        rows={3}
+                        required
+                        value={formState.message}
+                        onChange={(e) => setFormState({ ...formState, message: e.target.value })}
+                      />
+                      <Button type="submit" className="w-full" disabled={formStatus === "loading"}>
+                        {formStatus === "loading" ? (
+                          "Sending..."
+                        ) : (
+                          <>
+                            <Send className="mr-2 h-4 w-4" />
+                            Send Message
+                          </>
+                        )}
+                      </Button>
+                      {formStatus === "error" && (
+                        <p className="text-sm text-red-500 text-center">
+                          Failed to send. Please try again.
+                        </p>
+                      )}
+                    </form>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Other plans suggestion */}
+          {planId && planSuggestions[planId] && (
+            <div className="border-t pt-6 print:hidden">
+              <p className="text-sm text-muted-foreground mb-3">Looking for something different?</p>
+              <div className="flex flex-col gap-2">
+                {planSuggestions[planId].map((suggestion) => {
+                  const suggestedPlan = pricingPlans.find((p) => p.id === suggestion.id)
+                  return (
+                    <Link
+                      key={suggestion.id}
+                      to={`/plan/${suggestion.id}`}
+                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors group"
+                    >
+                      <div>
+                        <p className="text-sm">{suggestion.text}</p>
+                        {suggestedPlan && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {suggestedPlan.name} - {suggestedPlan.price}
+                          </p>
+                        )}
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0 ml-3" />
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
