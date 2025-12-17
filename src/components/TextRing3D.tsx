@@ -1,15 +1,29 @@
 "use client"
 
+import { useState, useEffect } from "react"
+
 interface TextRing3DProps {
   text: string
   className?: string
 }
 
 export function TextRing3D({ text, className = "" }: TextRing3DProps) {
+  const [radius, setRadius] = useState(280)
+  const [perspective, setPerspective] = useState(320)
+
+  useEffect(() => {
+    const updateValues = () => {
+      const isMobile = window.innerWidth < 640
+      setRadius(isMobile ? 150 : 280)
+      setPerspective(isMobile ? 380 : 320)
+    }
+    updateValues()
+    window.addEventListener("resize", updateValues)
+    return () => window.removeEventListener("resize", updateValues)
+  }, [])
+
   const fullText = `${text}  •  ${text}  •  `
   const characters = fullText.split("")
-
-  const radius = 280
   const anglePerChar = 360 / characters.length
 
   return (
@@ -26,7 +40,7 @@ export function TextRing3D({ text, className = "" }: TextRing3DProps) {
       <div
         className="relative"
         style={{
-          perspective: "320px",
+          perspective: `${perspective}px`,
           perspectiveOrigin: "center center",
         }}
       >

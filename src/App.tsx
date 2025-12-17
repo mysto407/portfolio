@@ -151,10 +151,10 @@ function App() {
           <img
             src="https://api.dicebear.com/9.x/lorelei/svg?seed=Adrian&beardProbability=0&earringsProbability=0&glasses=variant01,variant03,variant04,variant05&glassesProbability=100&hair=variant43&hairAccessoriesColor[]&hairAccessoriesProbability=0&mouth=happy01,happy02,happy03,happy04,happy05,happy06,happy07,happy09,happy11,happy12,happy13,happy14,happy15,happy17,happy18,happy16"
             alt="Avatar"
-            className="w-24 h-24 rounded-full -mt-16"
+            className="w-24 h-24 rounded-full mt-4 sm:-mt-16"
           />
-          <HyperText className="max-w-[600px] text-muted-foreground text-sm md:text-base font-normal -mt-2" delay={300}>Professional websites and web applications built with modern technologies. From simple landing pages to complex web apps.</HyperText>
-          <div className="flex flex-wrap justify-center gap-4 mt-4">
+          <HyperText className="max-w-[600px] text-muted-foreground text-sm md:text-base font-normal mt-2 sm:-mt-2" delay={300}>Professional websites and web applications built with modern technologies. From simple landing pages to complex web apps.</HyperText>
+          <div className="flex flex-wrap justify-center gap-4 mt-6 sm:mt-4">
             <Button onClick={() => scrollToSection("pricing")} className="shadow-lg hover:shadow-xl transition-shadow">
               View Pricing
             </Button>

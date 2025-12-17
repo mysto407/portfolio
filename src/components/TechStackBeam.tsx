@@ -70,7 +70,7 @@ export function TechStackBeam() {
 
   return (
     <div
-      className="relative flex h-[500px] w-full items-center justify-center overflow-hidden rounded-lg p-10"
+      className="relative flex h-[500px] w-full items-center justify-center rounded-lg p-10"
       ref={containerRef}
     >
       {/* Center Avatar */}

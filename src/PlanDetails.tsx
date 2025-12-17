@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Check, ArrowLeft, Clock, Users, X, Wrench, HelpCircle, CreditCard, Shield, Calculator, Plus, Printer, Send, ArrowRight, ExternalLink } from "lucide-react"
+import { Check, ArrowLeft, Clock, Users, X, Wrench, HelpCircle, CreditCard, Shield, Calculator, Plus, Printer, Send, ArrowRight, ExternalLink, Menu } from "lucide-react"
 import { pricingPlans } from "./data/pricingPlans"
 
 const planSuggestions: Record<string, { id: string; text: string }[]> = {
@@ -21,9 +21,18 @@ const planSuggestions: Record<string, { id: string; text: string }[]> = {
   ],
 }
 
+const navLinks = [
+  { href: "/#about", label: "About" },
+  { href: "/#process", label: "Process" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/#contact", label: "Contact" },
+]
+
 function PlanDetails() {
   const { planId } = useParams()
   const plan = pricingPlans.find((p) => p.id === planId)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -82,34 +91,74 @@ function PlanDetails() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b">
+      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="container flex h-14 items-center justify-between">
           <Link to="/" className="text-lg font-bold">Pema Lhagyal</Link>
-          <nav className="flex items-center gap-4">
-            <Link to="/#pricing" className="text-sm text-muted-foreground hover:text-foreground">Pricing</Link>
-            <Link to="/#contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden sm:flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Mobile menu button */}
+          <button
+            className="sm:hidden p-2 -mr-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+
+        {/* Mobile nav */}
+        <div
+          className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            mobileMenuOpen ? "max-h-64 border-t" : "max-h-0"
+          }`}
+        >
+          <nav className="container py-4 flex flex-col gap-3">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
         </div>
       </header>
 
-      <div className="container py-8">
-        <div className="flex items-center justify-between mb-6 print:hidden">
+      <div className="container py-4 sm:py-8 px-4 sm:px-8">
+        <div className="flex items-center justify-between mb-4 sm:mb-6 print:hidden">
           <Button variant="ghost" size="sm" asChild>
             <Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Back</Link>
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.print()}>
+          <Button variant="outline" size="sm" onClick={() => window.print()} className="hidden sm:flex">
             <Printer className="mr-1 h-4 w-4" />Print
           </Button>
         </div>
 
         <div>
           {/* Plan header */}
-          <div className="flex flex-wrap items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold">{plan.name}</h1>
-            {plan.popular && <Badge>Most Popular</Badge>}
-            <span className="text-3xl font-bold text-primary ml-auto">{plan.price}</span>
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-3 mb-2">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-bold">{plan.name}</h1>
+              {plan.popular && <Badge className="text-xs">Most Popular</Badge>}
+            </div>
+            <span className="text-2xl sm:text-3xl font-bold text-primary sm:ml-auto">{plan.price}</span>
           </div>
-          <p className="text-muted-foreground mb-4">{plan.details.overview}</p>
+          <p className="text-muted-foreground text-sm sm:text-base mb-4">{plan.details.overview}</p>
 
           {/* Sample project link */}
           {'sampleUrl' in plan.details && plan.details.sampleUrl && (
@@ -124,44 +173,44 @@ function PlanDetails() {
           )}
 
           {/* Quick info bar */}
-          <div className="flex flex-wrap gap-4 mb-8 text-sm">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 mb-6 sm:mb-8 text-xs sm:text-sm">
             <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4 text-primary" />
+              <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
               <strong>Timeline:</strong> {plan.details.timeline}
             </div>
-            <div className="flex items-center gap-1">
-              <CreditCard className="h-4 w-4 text-primary" />
-              <strong>Payment:</strong> {plan.details.payment}
+            <div className="flex items-start gap-1">
+              <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0 mt-0.5" />
+              <span><strong>Payment:</strong> {plan.details.payment}</span>
             </div>
             <div className="flex items-center gap-1">
-              <Shield className="h-4 w-4 text-primary" />
+              <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
               <strong>Guarantee:</strong> Satisfaction guaranteed
             </div>
           </div>
 
           {/* Two column layout */}
-          <div className="grid gap-6 lg:grid-cols-2 mb-8">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 mb-6 sm:mb-8">
             {/* Price Breakdown */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Calculator className="h-5 w-5 text-primary" />
+              <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Calculator className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Price Breakdown
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-2 text-sm">
+              <CardContent className="pt-0 px-4 sm:px-6">
+                <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                   {plan.details.priceBreakdown.map((item) => (
-                    <div key={item.item} className="flex justify-between items-center py-1 border-b last:border-0">
-                      <span>{item.item}</span>
-                      <div className="flex gap-4">
-                        <span className="text-muted-foreground">{item.hours}</span>
-                        <span className="font-medium w-16 text-right">{item.cost}</span>
+                    <div key={item.item} className="flex justify-between items-center py-1 border-b last:border-0 gap-2">
+                      <span className="flex-1 min-w-0">{item.item}</span>
+                      <div className="flex gap-2 sm:gap-4 flex-shrink-0">
+                        <span className="text-muted-foreground hidden sm:inline">{item.hours}</span>
+                        <span className="font-medium w-14 sm:w-16 text-right">{item.cost}</span>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="mt-3 pt-3 border-t flex justify-between items-center">
+                <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t flex justify-between items-center text-xs sm:text-sm">
                   <span className="font-bold">Total ({plan.details.totalHours} @ {plan.details.hourlyRate})</span>
                   <span className="font-bold text-primary">{plan.price}</span>
                 </div>
@@ -173,17 +222,17 @@ function PlanDetails() {
 
             {/* What's included */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Check className="h-5 w-5 text-primary" />
+              <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   What's Included
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="grid gap-1 text-sm">
+              <CardContent className="pt-0 px-4 sm:px-6">
+                <ul className="grid gap-1 text-xs sm:text-sm">
                   {plan.details.deliverables.map((item) => (
                     <li key={item} className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <Check className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0 mt-0.5" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -193,21 +242,21 @@ function PlanDetails() {
           </div>
 
           {/* Process - Compact horizontal timeline */}
-          <Card className="mb-8">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">How It Works</CardTitle>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+              <CardTitle className="text-base sm:text-lg">How It Works</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <CardContent className="pt-0 px-4 sm:px-6">
+              <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {plan.details.process.map((step, index) => (
-                  <div key={step.step} className="relative p-3 bg-muted/50 rounded-lg">
+                  <div key={step.step} className="relative p-2 sm:p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                      <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
                         {index + 1}
                       </span>
-                      <span className="font-medium text-sm">{step.title}</span>
+                      <span className="font-medium text-xs sm:text-sm">{step.title}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-1">{step.description}</p>
+                    <p className="text-xs text-muted-foreground mb-1 line-clamp-3">{step.description}</p>
                     <Badge variant="outline" className="text-xs">{step.duration}</Badge>
                   </div>
                 ))}
@@ -216,16 +265,16 @@ function PlanDetails() {
           </Card>
 
           {/* Three column layout */}
-          <div className="grid gap-6 md:grid-cols-3 mb-8">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-3 mb-6 sm:mb-8">
             {/* Technologies */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Wrench className="h-5 w-5 text-primary" />
+              <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Wrench className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Technologies
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 px-4 sm:px-6">
                 <div className="flex flex-wrap gap-1">
                   {plan.details.technologies.map((tech) => (
                     <Badge key={tech} variant="secondary" className="text-xs">{tech}</Badge>
@@ -236,17 +285,17 @@ function PlanDetails() {
 
             {/* Ideal for */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Users className="h-5 w-5 text-primary" />
+              <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Ideal For
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-1 text-sm">
+              <CardContent className="pt-0 px-4 sm:px-6">
+                <ul className="space-y-1 text-xs sm:text-sm">
                   {plan.details.idealFor.map((item) => (
                     <li key={item} className="flex items-center gap-1">
-                      <Check className="h-3 w-3 text-primary" />
+                      <Check className="h-3 w-3 text-primary flex-shrink-0" />
                       {item}
                     </li>
                   ))}
@@ -256,17 +305,17 @@ function PlanDetails() {
 
             {/* Not included */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <X className="h-5 w-5 text-muted-foreground" />
+              <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <X className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                   Not Included
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-1 text-sm text-muted-foreground">
+              <CardContent className="pt-0 px-4 sm:px-6">
+                <ul className="space-y-1 text-xs sm:text-sm text-muted-foreground">
                   {plan.details.notIncluded.map((item) => (
                     <li key={item} className="flex items-start gap-1">
-                      <X className="h-3 w-3 flex-shrink-0 mt-1" />
+                      <X className="h-3 w-3 flex-shrink-0 mt-0.5" />
                       {item}
                     </li>
                   ))}
@@ -276,19 +325,19 @@ function PlanDetails() {
           </div>
 
           {/* Add-ons */}
-          <Card className="mb-8">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Plus className="h-5 w-5 text-primary" />
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Available Add-ons
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+            <CardContent className="pt-0 px-4 sm:px-6">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-xs sm:text-sm">
                 {plan.details.addOns.map((addon) => (
-                  <div key={addon.name} className="flex justify-between items-center p-2 bg-muted/50 rounded">
-                    <span>{addon.name}</span>
-                    <Badge variant="outline" className="text-xs">{addon.price}</Badge>
+                  <div key={addon.name} className="flex justify-between items-center p-2 bg-muted/50 rounded gap-2">
+                    <span className="min-w-0">{addon.name}</span>
+                    <Badge variant="outline" className="text-xs flex-shrink-0">{addon.price}</Badge>
                   </div>
                 ))}
               </div>
@@ -296,19 +345,19 @@ function PlanDetails() {
           </Card>
 
           {/* FAQs - Compact grid */}
-          <Card className="mb-8">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <HelpCircle className="h-5 w-5 text-primary" />
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Frequently Asked Questions
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="grid gap-4 md:grid-cols-2">
+            <CardContent className="pt-0 px-4 sm:px-6">
+              <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
                 {plan.details.faqs.map((faq) => (
                   <div key={faq.question}>
-                    <h4 className="font-medium text-sm mb-1">{faq.question}</h4>
-                    <p className="text-sm text-muted-foreground">{faq.answer}</p>
+                    <h4 className="font-medium text-xs sm:text-sm mb-1">{faq.question}</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{faq.answer}</p>
                   </div>
                 ))}
               </div>
@@ -316,24 +365,24 @@ function PlanDetails() {
           </Card>
 
           {/* Guarantee + CTA */}
-          <div className="grid gap-6 md:grid-cols-2 mb-8">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 mb-6 sm:mb-8">
             <Card className="border-primary">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
+              <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Satisfaction Guarantee
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <p className="text-sm">{plan.details.guarantee}</p>
+              <CardContent className="pt-0 px-4 sm:px-6">
+                <p className="text-xs sm:text-sm">{plan.details.guarantee}</p>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Ready to get started?</CardTitle>
+              <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
+                <CardTitle className="text-base sm:text-lg">Ready to get started?</CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 px-4 sm:px-6">
                 <div className="hidden print:block">
                   <p className="text-sm">Contact: pema.lhagyal.work@gmail.com</p>
                 </div>
@@ -396,8 +445,8 @@ function PlanDetails() {
 
           {/* Other plans suggestion */}
           {planId && planSuggestions[planId] && (
-            <div className="border-t pt-6 print:hidden">
-              <p className="text-sm text-muted-foreground mb-3">Looking for something different?</p>
+            <div className="border-t pt-4 sm:pt-6 print:hidden">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">Looking for something different?</p>
               <div className="flex flex-col gap-2">
                 {planSuggestions[planId].map((suggestion) => {
                   const suggestedPlan = pricingPlans.find((p) => p.id === suggestion.id)
@@ -405,17 +454,17 @@ function PlanDetails() {
                     <Link
                       key={suggestion.id}
                       to={`/plan/${suggestion.id}`}
-                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors group"
+                      className="flex items-center justify-between p-2 sm:p-3 rounded-lg border hover:bg-muted/50 transition-colors group"
                     >
-                      <div>
-                        <p className="text-sm">{suggestion.text}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm">{suggestion.text}</p>
                         {suggestedPlan && (
                           <p className="text-xs text-muted-foreground mt-1">
                             {suggestedPlan.name} - {suggestedPlan.price}
                           </p>
                         )}
                       </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0 ml-3" />
+                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0 ml-2 sm:ml-3" />
                     </Link>
                   )
                 })}
