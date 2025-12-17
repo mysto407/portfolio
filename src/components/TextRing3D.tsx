@@ -6,7 +6,6 @@ interface TextRing3DProps {
 }
 
 export function TextRing3D({ text, className = "" }: TextRing3DProps) {
-  // Duplicate text to fill the full ring
   const fullText = `${text}  •  ${text}  •  `
   const characters = fullText.split("")
 
@@ -18,7 +17,7 @@ export function TextRing3D({ text, className = "" }: TextRing3DProps) {
       <style>{`
         @keyframes rotateRing {
           from { transform: rotateX(-15deg) rotateY(0deg); }
-          to { transform: rotateX(-15deg) rotateY(-360deg); }
+          to { transform: rotateX(-15deg) rotateY(360deg); }
         }
         .text-ring-3d {
           animation: rotateRing 20s linear infinite;
@@ -27,7 +26,7 @@ export function TextRing3D({ text, className = "" }: TextRing3DProps) {
       <div
         className="relative"
         style={{
-          perspective: "1000px",
+          perspective: "330px",
           perspectiveOrigin: "center center",
         }}
       >
@@ -52,6 +51,7 @@ export function TextRing3D({ text, className = "" }: TextRing3DProps) {
                     translateY(-50%)
                     rotateY(${angle}deg)
                     translateZ(${radius}px)
+                    rotateY(180deg)
                   `,
                   transformStyle: "preserve-3d",
                 }}
