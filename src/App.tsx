@@ -9,36 +9,8 @@ import { Mail, Check, Menu, X, Send, MessageSquare, Palette, Code, Rocket } from
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { pricingPlans } from "./data/pricingPlans"
 import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect"
-import {
-  SiReact,
-  SiTypescript,
-  SiTailwindcss,
-  SiNodedotjs,
-  SiNextdotjs,
-  SiVite,
-  SiPostgresql,
-  SiMongodb,
-  SiGit,
-  SiFigma,
-  SiDocker,
-  SiVercel,
-} from "react-icons/si"
-
-// Tech stack data with Simple Icons
-const techStack = [
-  { name: "React", icon: SiReact },
-  { name: "TypeScript", icon: SiTypescript },
-  { name: "Tailwind CSS", icon: SiTailwindcss },
-  { name: "Node.js", icon: SiNodedotjs },
-  { name: "Next.js", icon: SiNextdotjs },
-  { name: "Vite", icon: SiVite },
-  { name: "PostgreSQL", icon: SiPostgresql },
-  { name: "MongoDB", icon: SiMongodb },
-  { name: "Git", icon: SiGit },
-  { name: "Figma", icon: SiFigma },
-  { name: "Docker", icon: SiDocker },
-  { name: "Vercel", icon: SiVercel },
-]
+import { TechStackBeam } from "@/components/TechStackBeam"
+import { TextRing3D } from "@/components/TextRing3D"
 
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -165,9 +137,7 @@ function App() {
       {/* Hero Section */}
       <section className="container py-20 md:py-28">
         <div className="flex flex-col items-center text-center gap-4">
-          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-            Web Development Services
-          </h1>
+          <TextRing3D text="Web Development Services" className="h-[160px] mb-12" />
           <p className="max-w-[600px] text-muted-foreground md:text-xl">
             Professional websites and web applications built with modern technologies.
             From simple landing pages to complex web apps.
@@ -191,20 +161,10 @@ function App() {
             <h2 className="text-3xl font-bold tracking-tighter mb-4">
               Technologies I Use
             </h2>
-            <p className="text-muted-foreground mb-12 max-w-[600px] mx-auto">
+            <p className="text-muted-foreground mb-8 max-w-[600px] mx-auto">
               Modern tools and frameworks to build fast, scalable, and maintainable applications.
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-5xl mx-auto">
-              {techStack.map((tech) => (
-                <div
-                  key={tech.name}
-                  className="flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <tech.icon className="w-8 h-8" />
-                  <span className="text-sm font-medium">{tech.name}</span>
-                </div>
-              ))}
-            </div>
+            <TechStackBeam />
           </div>
         </div>
       </section>
