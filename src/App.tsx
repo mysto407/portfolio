@@ -136,10 +136,15 @@ function App() {
 
       <main className="relative z-10">
       {/* Hero Section */}
-      <section className="container py-20 md:py-28">
+      <section className="container pt-12 pb-24 md:pt-16 md:pb-32">
         <div className="flex flex-col items-center text-center gap-4">
-          <TextRing3D text="Web Development Services" className="h-[160px] mb-12" />
-          <HyperText className="max-w-[600px] text-muted-foreground text-sm md:text-base font-normal" delay={300}>Professional websites and web applications built with modern technologies. From simple landing pages to complex web apps.</HyperText>
+          <TextRing3D text="secivreS tnempoleveD beW" className="h-[160px] mb-0" />
+          <img
+            src="https://api.dicebear.com/9.x/lorelei/svg?seed=Adrian&beardProbability=0&earringsProbability=0&glasses=variant01,variant03,variant04,variant05&glassesProbability=100&hair=variant43&hairAccessoriesColor[]&hairAccessoriesProbability=0&mouth=happy01,happy02,happy03,happy04,happy05,happy06,happy07,happy09,happy11,happy12,happy13,happy14,happy15,happy17,happy18,happy16"
+            alt="Avatar"
+            className="w-24 h-24 rounded-full -mt-16"
+          />
+          <HyperText className="max-w-[600px] text-muted-foreground text-sm md:text-base font-normal -mt-2" delay={300}>Professional websites and web applications built with modern technologies. From simple landing pages to complex web apps.</HyperText>
           <div className="flex flex-wrap justify-center gap-4 mt-4">
             <Button onClick={() => scrollToSection("pricing")} className="shadow-lg hover:shadow-xl transition-shadow">
               View Pricing
@@ -153,7 +158,7 @@ function App() {
       </section>
 
       {/* Tech Stack Section */}
-      <section className="scroll-mt-16">
+      <section className="scroll-mt-16 mt-16 md:mt-24">
         <div className="container py-16 md:py-20">
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tighter mb-4">
@@ -168,8 +173,8 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className=" scroll-mt-16">
-        <div className="container py-16 md:py-20">
+      <section id="about" className="scroll-mt-16">
+        <div className="container py-8 md:py-12">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold tracking-tighter mb-6">About Me</h2>
             <p className="text-lg text-muted-foreground mb-4">

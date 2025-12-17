@@ -26,7 +26,7 @@ export function TextRing3D({ text, className = "" }: TextRing3DProps) {
       <div
         className="relative"
         style={{
-          perspective: "330px",
+          perspective: "320px",
           perspectiveOrigin: "center center",
         }}
       >
