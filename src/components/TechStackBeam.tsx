@@ -36,7 +36,6 @@ export function TechStackBeam() {
   const containerRef = useRef<HTMLDivElement>(null)
   const centerRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(false)
-  const [rotation, setRotation] = useState(0)
 
   // Create stable refs for each tech icon
   const ref0 = useRef<HTMLDivElement>(null)
@@ -58,13 +57,6 @@ export function TechStackBeam() {
     setMounted(true)
   }, [])
 
-  // Rotation animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRotation((prev) => (prev + 0.15) % 360)
-    }, 50)
-    return () => clearInterval(interval)
-  }, [])
 
   const radius = 180
 
@@ -87,8 +79,7 @@ export function TechStackBeam() {
 
       {/* Tech Icons arranged in a rotating circle */}
       {techStack.map((tech, index) => {
-        const baseAngle = (index * 360) / techStack.length - 90
-        const angle = baseAngle + rotation
+        const angle = (index * 360) / techStack.length - 90
         const x = Math.cos((angle * Math.PI) / 180) * radius
         const y = Math.sin((angle * Math.PI) / 180) * radius
 
