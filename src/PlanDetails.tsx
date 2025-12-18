@@ -476,8 +476,11 @@ function PlanDetails() {
 
       {/* Footer */}
       <footer className="border-t py-4">
-        <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Pema Lhagyal. All rights reserved.
+        <div className="container flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
+          <span>© {new Date().getFullYear()} Pema Lhagyal. All rights reserved.</span>
+          <Link to="/privacy" className="hover:text-foreground transition-colors">
+            Privacy Policy
+          </Link>
         </div>
       </footer>
     </div>

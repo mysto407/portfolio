@@ -448,6 +448,12 @@ function App() {
               © {new Date().getFullYear()} Pema Lhagyal. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
+              <Link
+                to="/privacy"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Privacy Policy
+              </Link>
               <a
                 href="mailto:pema.lhagyal.work@gmail.com"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
