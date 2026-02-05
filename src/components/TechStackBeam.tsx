@@ -58,22 +58,42 @@ export function TechStackBeam() {
   }, [])
 
 
-  const radius = 180
+  const [radius, setRadius] = useState(120) // Default to smaller radius
+  const [containerHeight, setContainerHeight] = useState("h-[350px]") // Default to smaller height
+
+  useEffect(() => {
+    setMounted(true)
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setRadius(180)
+        setContainerHeight("h-[500px]")
+      } else {
+        setRadius(120)
+        setContainerHeight("h-[350px]")
+      }
+    }
+
+    // Initial check
+    handleResize()
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   return (
     <div
-      className="relative flex h-[500px] w-full items-center justify-center rounded-lg p-10"
+      className={`relative flex ${containerHeight} w-full items-center justify-center rounded-lg p-10 overflow-hidden`}
       ref={containerRef}
     >
       {/* Center Avatar */}
       <div
         ref={centerRef}
-        className="absolute z-20 flex h-20 w-20 items-center justify-center rounded-full border-2 border-border bg-background shadow-lg"
+        className="absolute z-20 flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full border-2 border-border bg-background shadow-lg"
       >
         <img
           src="https://api.dicebear.com/9.x/lorelei/svg?seed=Christopher&beard[]&beardProbability=0&earrings[]&earringsColor[]&earringsProbability=0&eyebrows[]&frecklesProbability=100&glassesProbability=100&hair=variant07,variant11,variant12,variant43,variant06&hairAccessoriesColor[]&hairAccessoriesProbability=0"
           alt="Avatar"
-          className="h-16 w-16 rounded-full"
+          className="h-12 w-12 md:h-16 md:w-16 rounded-full"
         />
       </div>
 
@@ -92,10 +112,10 @@ export function TechStackBeam() {
               transform: `translate(${x}px, ${y}px)`,
             }}
           >
-            <div className="z-20 flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-white dark:bg-neutral-900 p-2 shadow-md">
-              <tech.icon className="h-6 w-6" />
+            <div className="z-20 flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full border-2 border-border bg-white dark:bg-neutral-900 p-2 shadow-md">
+              <tech.icon className="h-5 w-5 md:h-6 md:w-6" />
             </div>
-            <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{tech.name}</span>
+            <span className="text-[10px] md:text-xs font-medium text-muted-foreground whitespace-nowrap bg-background/50 backdrop-blur-sm rounded px-1">{tech.name}</span>
           </div>
         )
       })}

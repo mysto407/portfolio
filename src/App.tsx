@@ -180,17 +180,42 @@ function App() {
           </div>
         </section>
 
-        {/* Tech Stack Section */}
-        <section className="scroll-mt-16 mt-16 md:mt-24">
-          <div className="container py-16 md:py-20">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tighter mb-4">
-                Technologies I Use
-              </h2>
-              <p className="text-muted-foreground mb-8 max-w-[600px] mx-auto">
-                Modern tools and frameworks to build fast, scalable, and maintainable applications.
-              </p>
-              <TechStackBeam />
+
+
+        {/* About Section */}
+        <section id="about" className="scroll-mt-16 relative overflow-hidden mt-0 md:mt-48">
+          {/* Background decorative elements */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -z-10 opacity-30 pointer-events-none" />
+
+          <div className="container py-12 md:py-32">
+            <div className="max-w-4xl mx-auto">
+              <div className="relative z-10 p-8 md:p-12 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+
+                <div className="relative z-10 text-center space-y-8">
+
+
+                  <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    Building the web, <br className="hidden sm:block" /> one pixel at a time.
+                  </h2>
+
+                  <div className="space-y-6 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+                    <p>
+                      I'm a web developer who believes that a great website isn't just about code—it's about telling a story.
+                      I specialize in building accessible, high-performance web applications that look beautiful and work seamlessly on every device.
+                    </p>
+                    <p>
+                      With a focus on modern technologies like React, TypeScript, and Tailwind CSS, I turn complex requirements into clean, maintainable solutions.
+                    </p>
+                  </div>
+
+                  <div className="py-8">
+                    <TechStackBeam />
+                  </div>
+
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -212,41 +237,6 @@ function App() {
                   <ProjectCard project={project} />
                 </div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section id="about" className="scroll-mt-16 relative overflow-hidden">
-          {/* Background decorative elements */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -z-10 opacity-30 pointer-events-none" />
-
-          <div className="container py-24 md:py-32">
-            <div className="max-w-4xl mx-auto">
-              <div className="relative z-10 p-8 md:p-12 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-
-                <div className="relative z-10 text-center space-y-8">
-
-
-                  <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
-                    Building the web, <br className="hidden sm:block" /> one pixel at a time.
-                  </h2>
-
-                  <div className="space-y-6 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                    <p>
-                      I'm a web developer who believes that a great website isn't just about code—it's about telling a story.
-                      I specialize in building accessible, high-performance web applications that look beautiful and work seamlessly on every device.
-                    </p>
-                    <p>
-                      With a focus on modern technologies like React, TypeScript, and Tailwind CSS, I turn complex requirements into clean,
-                      maintainable solutions.
-                    </p>
-                  </div>
-
-                </div>
-              </div>
             </div>
           </div>
         </section>
