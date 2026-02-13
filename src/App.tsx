@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -23,6 +23,17 @@ function App() {
     message: "",
   })
   const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [isAutoExpanded, setIsAutoExpanded] = useState(true)
+  const [isUserExpanded, setIsUserExpanded] = useState(false)
+
+  const isExpanded = isAutoExpanded || isUserExpanded
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAutoExpanded(false)
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,16 +72,23 @@ function App() {
 
       {/* Pema Logo Card */}
       <div className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
-        <Card className="bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-lg w-16 h-16 md:w-32 md:h-32 flex items-center justify-center transition-all duration-300 relative overflow-hidden group">
+        <Card
+          onClick={() => setIsUserExpanded(!isUserExpanded)}
+          className={`bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-lg h-16 md:h-32 flex items-center justify-start transition-all duration-500 ease-in-out relative overflow-hidden group cursor-pointer ${isExpanded ? 'w-[280px] md:w-[450px]' : 'w-20 md:w-32'} md:hover:w-[450px]`}
+        >
           <div className="absolute inset-0 z-0 opacity-10 pointer-events-none select-none overflow-hidden">
             <span className="absolute -top-2 -left-2 text-4xl font-bold text-black blur-[2px] animate-drift opacity-60">Pema</span>
             <span className="absolute top-8 -right-4 text-5xl font-bold text-black blur-[3px] animate-drift-slow delay-1000 opacity-40">Pema</span>
-            <span className="absolute -bottom-6 left-4 text-6xl font-bold text-black blur-[4px] animate-drift delay-2000 opacity-30">Pema</span>
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[5rem] font-bold text-black blur-[5px] animate-drift-slow delay-700 opacity-20">.</span>
-            <span className="absolute bottom-2 right-2 text-2xl font-bold text-black blur-[1px] animate-drift delay-500 opacity-50">.</span>
+            <span className="absolute -bottom-6 left-12 text-6xl font-bold text-black blur-[4px] animate-drift delay-2000 opacity-30">Pema</span>
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] font-bold text-black blur-[5px] animate-drift-slow delay-700 opacity-10">.</span>
+            <span className="absolute bottom-2 right-12 text-2xl font-bold text-black blur-[1px] animate-drift delay-500 opacity-50">.</span>
           </div>
-          <CardContent className="p-0 relative z-10">
-            <span className="font-syne font-extrabold text-base md:text-2xl group-hover:scale-110 transition-transform duration-300 block">Pema.</span>
+          <CardContent className="p-0 relative z-10 flex items-center h-full w-full pl-2.5 md:pl-8">
+            <span className="font-syne font-extrabold text-sm md:text-2xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">Pema.</span>
+            <div className={`flex flex-col ml-3 md:ml-8 transition-all duration-500 overflow-hidden whitespace-nowrap ${isExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 md:group-hover:opacity-100 md:group-hover:translate-x-0'}`}>
+              <span className="text-xs md:text-sm font-medium text-foreground/80">Based in Melbourne</span>
+              <a href="mailto:pema.lhagyal.work@gmail.com" className="text-[10px] md:text-xs text-muted-foreground hover:text-primary transition-colors">pema.lhagyal.work@gmail.com</a>
+            </div>
           </CardContent>
         </Card>
       </div>
