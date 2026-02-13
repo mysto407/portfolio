@@ -1,13 +1,13 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+// import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Mail, Check, Menu, X, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
+import { Mail, Check, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { pricingPlans } from "./data/pricingPlans"
+// import { pricingPlans } from "./data/pricingPlans"
 import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect"
 import { TechStackBeam } from "@/components/TechStackBeam"
 import { TextRing3D } from "@/components/TextRing3D"
@@ -16,7 +16,7 @@ import { projects } from "./data/projects"
 import { ProjectCard } from "@/components/ProjectCard"
 
 function App() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  // const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -47,7 +47,7 @@ function App() {
   }
 
   const scrollToSection = (id: string) => {
-    setMobileMenuOpen(false)
+    // setMobileMenuOpen(false)
     const element = document.getElementById(id)
     if (element) {
       element.scrollIntoView({ behavior: "smooth" })
@@ -57,105 +57,23 @@ function App() {
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-hidden">
       <BackgroundRippleEffect />
-      {/* Header */}
-      <header className="z-10 border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <span className="text-xl font-bold">Pema Lhagyal</span>
+      {/* Header removed */}
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            <button
-              onClick={() => scrollToSection("about")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              About
-            </button>
-            <button
-              onClick={() => scrollToSection("projects")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Projects
-            </button>
-            <button
-              onClick={() => scrollToSection("process")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Process
-            </button>
-            <button
-              onClick={() => scrollToSection("pricing")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Pricing
-            </button>
-            <button
-              onClick={() => scrollToSection("faq")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              FAQ
-            </button>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Contact
-            </button>
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Nav */}
-        {mobileMenuOpen && (
-          <nav className="md:hidden border-t bg-background py-4">
-            <div className="container flex flex-col gap-2">
-              <button
-                onClick={() => scrollToSection("about")}
-                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                About
-              </button>
-              <button
-                onClick={() => scrollToSection("projects")}
-                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Projects
-              </button>
-              <button
-                onClick={() => scrollToSection("process")}
-                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Process
-              </button>
-              <button
-                onClick={() => scrollToSection("pricing")}
-                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Pricing
-              </button>
-              <button
-                onClick={() => scrollToSection("faq")}
-                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                FAQ
-              </button>
-              <button
-                onClick={() => scrollToSection("contact")}
-                className="text-left py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Contact
-              </button>
-            </div>
-          </nav>
-        )}
-      </header>
+      {/* Pema Logo Card */}
+      <div className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
+        <Card className="bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-lg w-16 h-16 md:w-32 md:h-32 flex items-center justify-center transition-all duration-300 relative overflow-hidden group">
+          <div className="absolute inset-0 z-0 opacity-10 pointer-events-none select-none overflow-hidden">
+            <span className="absolute -top-2 -left-2 text-4xl font-bold text-black blur-[2px] animate-drift opacity-60">Pema</span>
+            <span className="absolute top-8 -right-4 text-5xl font-bold text-black blur-[3px] animate-drift-slow delay-1000 opacity-40">Pema</span>
+            <span className="absolute -bottom-6 left-4 text-6xl font-bold text-black blur-[4px] animate-drift delay-2000 opacity-30">Pema</span>
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[5rem] font-bold text-black blur-[5px] animate-drift-slow delay-700 opacity-20">.</span>
+            <span className="absolute bottom-2 right-2 text-2xl font-bold text-black blur-[1px] animate-drift delay-500 opacity-50">.</span>
+          </div>
+          <CardContent className="p-0 relative z-10">
+            <span className="font-syne font-extrabold text-base md:text-2xl group-hover:scale-110 transition-transform duration-300 block">Pema.</span>
+          </CardContent>
+        </Card>
+      </div>
 
       <main className="relative z-10">
         {/* Hero Section */}
@@ -169,9 +87,9 @@ function App() {
             />
             <HyperText className="max-w-[600px] text-muted-foreground text-sm md:text-base font-normal mt-2 sm:-mt-2" delay={300}>Professional websites and web applications built with modern technologies. From simple landing pages to complex web apps.</HyperText>
             <div className="flex flex-wrap justify-center gap-4 mt-6 sm:mt-4">
-              <Button onClick={() => scrollToSection("pricing")} className="shadow-lg hover:shadow-xl transition-shadow">
+              {/* <Button onClick={() => scrollToSection("pricing")} className="shadow-lg hover:shadow-xl transition-shadow">
                 View Pricing
-              </Button>
+              </Button> */}
               <Button variant="outline" onClick={() => scrollToSection("contact")} className="hover:shadow-lg transition-shadow">
                 <Mail className="mr-2 h-4 w-4" />
                 Get a Quote
@@ -231,7 +149,7 @@ function App() {
                 A selection of recent work and side projects.
               </p>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 max-w-5xl mx-auto">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
               {projects.map((project, index) => (
                 <div key={index} className="h-full">
                   <ProjectCard project={project} />
@@ -290,7 +208,7 @@ function App() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="border-t scroll-mt-16">
+        {/* <section id="pricing" className="border-t scroll-mt-16">
           <div className="container py-16 md:py-20">
             <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Pricing</h2>
             <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
@@ -326,7 +244,7 @@ function App() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* FAQ Section */}
         <section id="faq" className="border-t bg-muted/50 scroll-mt-16">
@@ -505,7 +423,7 @@ function App() {
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   )
 }
 

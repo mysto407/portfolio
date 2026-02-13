@@ -24,4 +24,12 @@ export const projects: Project[] = [
         // image: "/path/to/yodsel-image.jpg",
         logo: "/images/ytatLogoOG_HD_White.png"
     },
+    {
+        title: "Acland Grange SRS",
+        description: "A purpose-built Supported Residential Service (SRS) providing compassionate care and accommodation for elderly and disabled individuals. The website features a welcoming design, service information, and easy contact options for families.",
+        tags: ["React", "Tailwind CSS", "Vite"],
+        link: "https://www.aclandgrangesrs.com.au/",
+        // image: "",
+        logo: "/images/ag_logo.svg"
+    },
 ];

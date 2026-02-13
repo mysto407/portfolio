@@ -16,10 +16,12 @@
     opacity: 0.4;
     transform: scale(1);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.1);
   }
+
   100% {
     opacity: 0.4;
     transform: scale(1);
@@ -91,6 +93,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -107,8 +110,15 @@
 }
 
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 /* Glow effect for cards */
@@ -123,18 +133,36 @@
 
 /* Floating animation for tech icons */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .float-animation {
   animation: float 3s ease-in-out infinite;
 }
 
-.float-delay-1 { animation-delay: 0.5s; }
-.float-delay-2 { animation-delay: 1s; }
-.float-delay-3 { animation-delay: 1.5s; }
-.float-delay-4 { animation-delay: 2s; }
+.float-delay-1 {
+  animation-delay: 0.5s;
+}
+
+.float-delay-2 {
+  animation-delay: 1s;
+}
+
+.float-delay-3 {
+  animation-delay: 1.5s;
+}
+
+.float-delay-4 {
+  animation-delay: 2s;
+}
 
 /* Gradient border effect */
 .gradient-border {
@@ -194,7 +222,8 @@
     display: block !important;
   }
 
-  header, footer {
+  header,
+  footer {
     display: none !important;
   }
 
@@ -204,23 +233,29 @@
   }
 
   /* Prevent elements from breaking across pages */
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     break-after: avoid;
   }
 
-  .card, [class*="Card"], [class*="CardContent"] {
+  .card,
+  [class*="Card"],
+  [class*="CardContent"] {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
   /* Keep grid items together */
-  .grid > * {
+  .grid>* {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
   /* Add spacing between sections for cleaner page breaks */
-  section, .mb-8 {
+  section,
+  .mb-8 {
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -231,7 +266,8 @@
   }
 
   /* Ensure backgrounds print */
-  .bg-muted\/50, .bg-primary {
+  .bg-muted\/50,
+  .bg-primary {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
@@ -249,4 +285,42 @@
   .gap-6 {
     gap: 1rem !important;
   }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(10px, -10px) rotate(2deg);
+  }
+
+  50% {
+    transform: translate(0, -20px) rotate(0deg);
+  }
+
+  75% {
+    transform: translate(-10px, -10px) rotate(-2deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.animate-drift {
+  animation: drift 8s ease-in-out infinite;
+}
+
+.animate-drift-slow {
+  animation: drift 12s ease-in-out infinite;
+}
+
+.delay-1000 {
+  animation-delay: 1000ms;
+}
+
+.delay-2000 {
+  animation-delay: 2000ms;
 }
