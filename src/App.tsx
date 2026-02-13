@@ -74,7 +74,7 @@ function App() {
       <div className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
         <Card
           onClick={() => setIsUserExpanded(!isUserExpanded)}
-          className={`bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-lg h-16 md:h-32 flex items-center justify-start transition-all duration-500 ease-in-out relative overflow-hidden group cursor-pointer ${isExpanded ? 'w-[280px] md:w-[450px]' : 'w-20 md:w-32'} md:hover:w-[450px]`}
+          className={`bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-lg h-16 md:h-32 flex items-center justify-start transition-all duration-500 ease-in-out relative overflow-hidden group cursor-pointer ${isExpanded ? 'w-[280px] md:w-[450px]' : 'w-16 md:w-32'} md:hover:w-[450px]`}
         >
           <div className="absolute inset-0 z-0 opacity-10 pointer-events-none select-none overflow-hidden">
             <span className="absolute -top-2 -left-2 text-4xl font-bold text-black blur-[2px] animate-drift opacity-60">Pema</span>
