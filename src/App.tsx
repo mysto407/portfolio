@@ -1,55 +1,345 @@
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-// import { Badge } from "@/components/ui/badge"
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, lazy, Suspense } from "react"
+import { animate, createTimeline } from 'animejs'
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Mail, Check, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
+import { Check, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-// import { pricingPlans } from "./data/pricingPlans"
-import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect"
-import { TechStackBeam } from "@/components/TechStackBeam"
-import { TextRing3D } from "@/components/TextRing3D"
-import { HyperText } from "@/components/ui/hyper-text"
 import { projects } from "./data/projects"
-import { ProjectCard } from "@/components/ProjectCard"
+import { GlassFrame, GlassCard } from "@/components/GlassFrame"
+import { VibratingBorder } from "@/components/VibratingBorder"
 
-function App() {
-  // const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [formState, setFormState] = useState({
-    name: "",
-    email: "",
-    message: "",
-  })
-  const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
-  const [isAutoExpanded, setIsAutoExpanded] = useState(true)
-  const [isUserExpanded, setIsUserExpanded] = useState(false)
+const TechStackBeam = lazy(() =>
+  import("@/components/TechStackBeam").then(m => ({ default: m.TechStackBeam }))
+)
 
-  const isExpanded = isAutoExpanded || isUserExpanded
+// Padding that positions content safely inside the glass frame
+// Frame: top 8vh, sides 5%, bottom 8vh — we add ~2vh/2% inner breathing room
+const FRAME = "pt-[11vh] pb-[10vh] px-[7%]"
+
+const PROJECT_IDS = projects.map((_, i) => `project-${i}`)
+
+const SECTION_TITLES: Record<string, string> = {
+  hero: "Full-Stack Dev.",
+  about: "About.",
+  ...Object.fromEntries(PROJECT_IDS.map(id => [id, "Selected Work."])),
+  process: "Process.",
+  faq: "FAQ.",
+  contact: "Contact.",
+}
+
+const NAV_ITEMS = [
+  { id: 'about', label: 'About.' },
+  ...projects.map((p, i) => ({ id: `project-${i}`, label: p.title })),
+  { id: 'process', label: 'Process.' },
+  { id: 'faq', label: 'FAQ.' },
+  { id: 'contact', label: 'Contact.' },
+]
+
+
+function SmoothWidth({ children }: { children: React.ReactNode }) {
+  const outerRef = useRef<HTMLSpanElement>(null)
+  const innerRef = useRef<HTMLSpanElement>(null)
+  const isFirst = useRef(true)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsAutoExpanded(false)
-    }, 2000)
-    return () => clearTimeout(timer)
+    if (!outerRef.current || !innerRef.current) return
+    const to = innerRef.current.scrollWidth
+    if (isFirst.current) {
+      outerRef.current.style.width = to + 'px'
+      isFirst.current = false
+      return
+    }
+    const anim = animate(outerRef.current, {
+      width: [outerRef.current.offsetWidth, to],
+      duration: 400,
+      easing: 'easeInOutQuad',
+    })
+    return () => { anim.cancel() }
+  }, [children])
+
+  return (
+    <span ref={outerRef} style={{ display: 'inline-flex', alignItems: 'center', overflow: 'hidden' }}>
+      <span ref={innerRef} style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', width: 'max-content' }}>
+        {children}
+      </span>
+    </span>
+  )
+}
+
+
+const IFRAME_MOBILE_WIDTH = 390
+const IFRAME_DESKTOP_WIDTH = 1280
+
+function ProjectPreview({ url, title }: { url: string; title: string }) {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+  const [iframeHeight, setIframeHeight] = useState(900)
+  const [iframeWidth, setIframeWidth] = useState(IFRAME_DESKTOP_WIDTH)
+
+  const measure = useCallback(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const { width, height } = el.getBoundingClientRect()
+    const targetWidth = window.innerWidth >= 768 ? IFRAME_DESKTOP_WIDTH : IFRAME_MOBILE_WIDTH
+    setIframeWidth(targetWidth)
+    const s = width / targetWidth
+    setScale(s)
+    setIframeHeight(height / s)
+  }, [])
+
+  useEffect(() => {
+    measure()
+    const observer = new ResizeObserver(measure)
+    if (wrapperRef.current) observer.observe(wrapperRef.current)
+    return () => observer.disconnect()
+  }, [measure])
+
+  return (
+    <div ref={wrapperRef} className="w-full h-full overflow-hidden bg-white">
+      <iframe
+        src={url}
+        title={title}
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+        style={{
+          width: iframeWidth,
+          height: iframeHeight,
+          border: 'none',
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+        }}
+      />
+    </div>
+  )
+}
+
+function PillIndicator({ projectTitle }: { projectTitle: string | null }) {
+  const badgeWrapRef = useRef<HTMLSpanElement>(null)
+  const badgeRef    = useRef<HTMLSpanElement>(null)
+  const dotsWrapRef = useRef<HTMLDivElement>(null)
+  const dotsRef     = useRef<HTMLDivElement>(null)
+  const dot1Ref     = useRef<HTMLSpanElement>(null)
+  const dot2Ref     = useRef<HTMLSpanElement>(null)
+  const didMount    = useRef(false)
+  const initTitle   = useRef(projectTitle)
+  const prevTitle   = useRef(projectTitle)
+  const active      = useRef<Array<{ cancel(): void }>>([])
+
+  const cancelAll = () => { active.current.forEach(a => a.cancel()); active.current = [] }
+
+  const startDots = () => {
+    const dc = dotsRef.current, d1 = dot1Ref.current, d2 = dot2Ref.current
+    if (!dc || !d1 || !d2) return
+    active.current.push(
+      animate(dc, { rotate: 360, duration: 2400, easing: 'linear', loop: true }),
+      animate(d1, { scale: [1, 1.6], duration: 500, easing: 'easeInOutSine', loop: true, alternate: true }),
+      animate(d2, { scale: [1, 1.6], duration: 500, easing: 'easeInOutSine', loop: true, alternate: true, delay: 500 }),
+    )
+  }
+
+  // Set correct initial state before first paint — no animation flash
+  useLayoutEffect(() => {
+    const bw = badgeWrapRef.current, bi = badgeRef.current
+    const dw = dotsWrapRef.current, d1 = dot1Ref.current, d2 = dot2Ref.current
+    if (!bw || !bi || !dw) return
+    bw.style.overflow = 'hidden'
+    if (initTitle.current) {
+      bw.style.width = bi.scrollWidth + 'px'
+      dw.style.width = '0px'
+      if (d1) d1.style.opacity = '0'
+      if (d2) d2.style.opacity = '0'
+    } else {
+      bw.style.width = '0px'
+      dw.style.width = '20px'
+    }
+  }, [])
+
+  // Start dots on mount — only if we didn't open on a project section
+  useEffect(() => {
+    if (!initTitle.current) startDots()
+    return cancelAll
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Badge shine — restarts for each new project
+  useEffect(() => {
+    const bi = badgeRef.current
+    if (!projectTitle || !bi) return
+    const state = { pos: 200 }
+    const shine = animate(state, {
+      pos: -200, duration: 2500, easing: 'linear', loop: true,
+      onUpdate: () => { if (bi) bi.style.backgroundPosition = `${state.pos}% center` },
+    })
+    return () => { shine.cancel() }
+  }, [projectTitle])
+
+  // Morph: circles combine → pill, or pill separates → circles
+  useEffect(() => {
+    if (!didMount.current) { didMount.current = true; return }
+    const bw = badgeWrapRef.current, bi = badgeRef.current
+    const dw = dotsWrapRef.current, d1 = dot1Ref.current, d2 = dot2Ref.current
+    if (!bw || !bi || !dw || !d1 || !d2) return
+
+    const prev = prevTitle.current
+    prevTitle.current = projectTitle
+
+    cancelAll()
+
+    // Project → project: just tween the badge width, no combine/separate needed
+    if (prev && projectTitle) {
+      active.current.push(
+        animate(bw, { width: [bw.offsetWidth, bi.scrollWidth], duration: 400, easing: 'easeInOutQuad' })
+      )
+      return cancelAll
+    }
+
+    if (projectTitle) {
+      // 1. Circles converge toward center and shrink (easeInBack gives a slight pull-back before collapsing)
+      active.current.push(
+        animate(d1, { translateY: 4,  scale: 0, opacity: 0, duration: 240, easing: 'easeInBack' }),
+        animate(d2, { translateY: -4, scale: 0, opacity: 0, duration: 240, easing: 'easeInBack' }),
+        animate(dw, { width: 0, duration: 260, easing: 'easeInQuad' }),
+      )
+      // 2. Orange pill expands from where the dots were
+      const t = window.setTimeout(() => {
+        active.current.push(animate(bw, { width: [0, bi.scrollWidth], duration: 380, easing: 'easeOutExpo' }))
+      }, 160)
+      return () => { window.clearTimeout(t); cancelAll() }
+    } else {
+      // 1. Pill collapses, then dots wrapper opens, then circles pop out
+      const tl = createTimeline({ onComplete: startDots })
+      tl.add(bw, { width: [bw.offsetWidth, 0], duration: 300, easing: 'easeInExpo' })
+        .add(dw, { width: [0, 20], duration: 200, easing: 'easeOutQuad' })
+        .add(d1, { translateY: 0, scale: 1, opacity: 1, duration: 320, easing: 'easeOutBack' })
+        .add(d2, { translateY: 0, scale: 1, opacity: 1, duration: 320, easing: 'easeOutBack' }, '<')
+      active.current.push(tl)
+      return cancelAll
+    }
+  }, [projectTitle]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <>
+      <span ref={badgeWrapRef} style={{ display: 'inline-flex', overflow: 'hidden' }}>
+        <span
+          ref={badgeRef}
+          className="hidden md:inline-flex items-center px-2.5 pt-0.5 pb-1 rounded-full text-[10px] text-white whitespace-nowrap"
+          style={{
+            background: 'linear-gradient(90deg, #c2410c, #f97316, #fdba74, #f97316, #c2410c)',
+            backgroundSize: '200% auto',
+            backgroundPosition: '200% center',
+          }}
+        >
+          {projectTitle}
+        </span>
+      </span>
+      <div ref={dotsWrapRef} className="hidden md:flex">
+        <div ref={dotsRef} className="relative w-5 h-5 shrink-0 flex">
+          <span ref={dot1Ref} className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-orange-400" />
+          <span ref={dot2Ref} className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-yellow-400" />
+        </div>
+      </div>
+    </>
+  )
+}
+
+function App() {
+  const [formState, setFormState] = useState({ name: "", email: "", message: "" })
+  const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [pemaOpen, setPemaOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const pemaRef = useRef<HTMLDivElement>(null)
+  const pemaExpandRef = useRef<HTMLSpanElement>(null)
+
+  useLayoutEffect(() => {
+    const menu = menuRef.current
+    if (menu) {
+      menu.style.opacity = '0'
+      menu.style.pointerEvents = 'none'
+      menu.style.transform = 'translateY(8px) scale(0.96)'
+    }
+    const pema = pemaRef.current
+    if (pema) {
+      pema.style.opacity = '0'
+      pema.style.pointerEvents = 'none'
+      pema.style.transform = 'translateY(-6px) scale(0.97)'
+    }
+    const pemaExpand = pemaExpandRef.current
+    if (pemaExpand) {
+      pemaExpand.style.width = '0'
+      pemaExpand.style.opacity = '0'
+    }
+  }, [])
+
+  useEffect(() => {
+    const el = menuRef.current
+    if (!el) return
+    if (menuOpen) {
+      el.style.pointerEvents = 'auto'
+      const anim = animate(el, { opacity: [0, 1], translateY: [8, 0], scale: [0.96, 1], duration: 200, easing: 'easeOutQuad' })
+      return () => { anim.cancel() }
+    } else {
+      el.style.pointerEvents = 'none'
+      const anim = animate(el, { opacity: [1, 0], translateY: [0, 8], scale: [1, 0.96], duration: 200, easing: 'easeInQuad' })
+      return () => { anim.cancel() }
+    }
+  }, [menuOpen])
+
+  useEffect(() => {
+    const isDesktop = window.innerWidth >= 768
+    if (isDesktop) {
+      const el = pemaExpandRef.current
+      if (!el) return
+      if (pemaOpen) {
+        const target = el.scrollWidth
+        const anim = animate(el, { width: [0, target], opacity: [0, 1], duration: 300, easing: 'easeOutExpo' })
+        return () => { anim.cancel() }
+      } else {
+        const anim = animate(el, { width: [el.offsetWidth, 0], opacity: [1, 0], duration: 200, easing: 'easeInQuad' })
+        return () => { anim.cancel() }
+      }
+    } else {
+      const el = pemaRef.current
+      if (!el) return
+      if (pemaOpen) {
+        el.style.pointerEvents = 'auto'
+        const anim = animate(el, { opacity: [0, 1], translateY: [-6, 0], scale: [0.97, 1], duration: 200, easing: 'easeOutQuad' })
+        return () => { anim.cancel() }
+      } else {
+        el.style.pointerEvents = 'none'
+        const anim = animate(el, { opacity: [1, 0], translateY: [0, -6], scale: [1, 0.97], duration: 200, easing: 'easeInQuad' })
+        return () => { anim.cancel() }
+      }
+    }
+  }, [pemaOpen])
+
+  useEffect(() => {
+    const ids = ["hero", ...Object.keys(SECTION_TITLES)]
+    const sections = ids.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[]
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id)
+        })
+      },
+      { threshold: 0.4 }
+    )
+
+    sections.forEach(s => observer.observe(s))
+    return () => observer.disconnect()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormStatus("loading")
-
     try {
       const response = await fetch("/api/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formState),
       })
-
-      if (!response.ok) {
-        throw new Error("Failed to send")
-      }
-
+      if (!response.ok) throw new Error("Failed to send")
       setFormStatus("success")
       setFormState({ name: "", email: "", message: "" })
     } catch {
@@ -58,390 +348,442 @@ function App() {
   }
 
   const scrollToSection = (id: string) => {
-    // setMobileMenuOpen(false)
-    const element = document.getElementById(id)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
+    setMenuOpen(false)
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-hidden">
-      <BackgroundRippleEffect />
-      {/* Header removed */}
+    <div className="relative h-screen w-full">
+      <GlassFrame />
+      <VibratingBorder />
 
-      {/* Pema Logo Card */}
-      <div className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
-        <Card
-          onClick={() => setIsUserExpanded(!isUserExpanded)}
-          className={`bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-lg h-16 md:h-32 flex items-center justify-start transition-all duration-500 ease-in-out relative overflow-hidden group cursor-pointer ${isExpanded ? 'w-[280px] md:w-[450px]' : 'w-16 md:w-32'} md:hover:w-[450px]`}
-        >
-          <div className="absolute inset-0 z-0 opacity-10 pointer-events-none select-none overflow-hidden">
-            <span className="absolute -top-2 -left-2 text-4xl font-bold text-black blur-[2px] animate-drift opacity-60">Pema</span>
-            <span className="absolute top-8 -right-4 text-5xl font-bold text-black blur-[3px] animate-drift-slow delay-1000 opacity-40">Pema</span>
-            <span className="absolute -bottom-6 left-12 text-6xl font-bold text-black blur-[4px] animate-drift delay-2000 opacity-30">Pema</span>
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] font-bold text-black blur-[5px] animate-drift-slow delay-700 opacity-10">.</span>
-            <span className="absolute bottom-2 right-12 text-2xl font-bold text-black blur-[1px] animate-drift delay-500 opacity-50">.</span>
+      {/* Section title */}
+      {(() => {
+        const projectIndex = activeSection ? PROJECT_IDS.indexOf(activeSection) : -1
+        const sectionLabel = activeSection ? (SECTION_TITLES[activeSection] ?? '') : ''
+        const projectTitle = projectIndex !== -1 ? (projects[projectIndex].pill ?? projects[projectIndex].title) : null
+        return (
+          <div
+            className="fixed top-[calc(8vh-42px)] right-[5%] z-50 transition-opacity duration-300"
+            style={{ opacity: sectionLabel ? 1 : 0, pointerEvents: 'none' }}
+          >
+            <GlassCard style={{ borderRadius: '999px 999px 0 999px', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: '8px', minHeight: '36px' }}>
+              <SmoothWidth>
+                <span className="font-syncopate text-sm tracking-tight">
+                  <span className="md:hidden">{projectTitle ?? sectionLabel}</span>
+                  <span className="hidden md:inline">{sectionLabel}</span>
+                </span>
+              </SmoothWidth>
+              <PillIndicator projectTitle={projectTitle} />
+            </GlassCard>
           </div>
-          <CardContent className="p-0 relative z-10 flex items-center h-full w-full pl-2.5 md:pl-8">
-            <span className="font-syne font-extrabold text-sm md:text-2xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">Pema.</span>
-            <div className={`flex flex-col ml-3 md:ml-8 transition-all duration-500 overflow-hidden whitespace-nowrap ${isExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 md:group-hover:opacity-100 md:group-hover:translate-x-0'}`}>
-              <span className="text-xs md:text-sm font-medium text-foreground/80">Based in Melbourne</span>
-              <a href="mailto:pema.lhagyal.work@gmail.com" className="text-[10px] md:text-xs text-muted-foreground hover:text-primary transition-colors">pema.lhagyal.work@gmail.com</a>
-            </div>
-          </CardContent>
-        </Card>
+        )
+      })()}
+
+      {/* Get a Quote */}
+      <div className="fixed bottom-[calc(8vh-44px)] right-[5%] z-50">
+        <GlassCard style={{ borderRadius: '999px 0 999px 999px', padding: '8px 24px' }}>
+          <button
+            onClick={() => scrollToSection("contact")}
+            className="font-syncopate text-sm tracking-tight whitespace-nowrap"
+          >
+            Get a Quote →
+          </button>
+        </GlassCard>
       </div>
 
-      <main className="relative z-10">
-        {/* Hero Section */}
-        <section className="container pt-12 pb-24 md:pt-16 md:pb-32">
-          <div className="flex flex-col items-center text-center gap-4">
-            <TextRing3D text="secivreS tnempoleveD beW" className="h-[160px] mb-0" />
-            <img
-              src="https://api.dicebear.com/9.x/lorelei/svg?seed=Adrian&beardProbability=0&earringsProbability=0&glasses=variant01,variant03,variant04,variant05&glassesProbability=100&hair=variant43&hairAccessoriesColor[]&hairAccessoriesProbability=0&mouth=happy01,happy02,happy03,happy04,happy05,happy06,happy07,happy09,happy11,happy12,happy13,happy14,happy15,happy17,happy18,happy16"
-              alt="Avatar"
-              className="w-24 h-24 rounded-full mt-4 sm:-mt-16"
-            />
-            <HyperText className="max-w-[600px] text-muted-foreground text-sm md:text-base font-normal mt-2 sm:-mt-2" delay={300}>Professional websites and web applications built with modern technologies. From simple landing pages to complex web apps.</HyperText>
-            <div className="flex flex-wrap justify-center gap-4 mt-6 sm:mt-4">
-              {/* <Button onClick={() => scrollToSection("pricing")} className="shadow-lg hover:shadow-xl transition-shadow">
-                View Pricing
-              </Button> */}
-              <Button variant="outline" onClick={() => scrollToSection("contact")} className="hover:shadow-lg transition-shadow">
-                <Mail className="mr-2 h-4 w-4" />
-                Get a Quote
-              </Button>
+      {/* Bottom-left nav — desktop */}
+      <div className="hidden md:block fixed bottom-[calc(8vh-36px)] left-[5%] z-50">
+        <GlassCard style={{ borderRadius: '0 999px 999px 999px', padding: '8px 24px' }}>
+          <div className="flex items-center gap-6">
+            {NAV_ITEMS.map(({ id, label }) => {
+              const isActive = activeSection === id
+              return (
+                <button
+                  key={id}
+                  onClick={() => scrollToSection(id)}
+                  className={`text-xs whitespace-nowrap transition-all ${isActive ? 'opacity-100 font-semibold' : 'opacity-50 hover:opacity-100'}`}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* Bottom-left nav — mobile */}
+      <div className="md:hidden fixed bottom-[calc(8vh-44px)] left-[5%] z-50">
+        {/* Expanded menu — absolute so it doesn't shift the button */}
+        <div
+          ref={menuRef}
+          className="absolute bottom-full left-0 mb-2"
+          style={{ transformOrigin: 'bottom left' }}
+        >
+          <div style={{ borderRadius: '0 999px 999px 0', padding: '14px 22px', background: '#000' }}>
+            <div className="flex flex-col gap-4">
+              {NAV_ITEMS.map(({ id, label }) => {
+                const isActive = activeSection === id
+                return (
+                  <button
+                    key={id}
+                    onClick={() => scrollToSection(id)}
+                    className={`text-xs text-left text-white whitespace-nowrap transition-opacity ${isActive ? 'opacity-100 font-semibold' : 'opacity-40'}`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
             </div>
           </div>
-        </section>
+        </div>
 
+        {/* Menu trigger */}
+        <GlassCard style={{ borderRadius: '0 999px 999px 999px', padding: '8px 20px' }}>
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            className="font-syncopate text-sm tracking-tight"
+          >
+            {menuOpen ? 'Close ×' : 'Menu'}
+          </button>
+        </GlassCard>
+      </div>
 
-
-        {/* About Section */}
-        <section id="about" className="scroll-mt-16 relative overflow-hidden mt-0 md:mt-48">
-          {/* Background decorative elements */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -z-10 opacity-30 pointer-events-none" />
-
-          <div className="container py-12 md:py-32">
-            <div className="max-w-4xl mx-auto">
-              <div className="relative z-10 p-8 md:p-12 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-
-                <div className="relative z-10 text-center space-y-8">
-
-
-                  <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
-                    Building the web, <br className="hidden sm:block" /> one pixel at a time.
-                  </h2>
-
-                  <div className="space-y-6 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                    <p>
-                      I'm a web developer who believes that a great website isn't just about code—it's about telling a story.
-                      I specialize in building accessible, high-performance web applications that look beautiful and work seamlessly on every device.
-                    </p>
-                    <p>
-                      With a focus on modern technologies like React, TypeScript, and Tailwind CSS, I turn complex requirements into clean, maintainable solutions.
-                    </p>
-                  </div>
-
-                  <div className="py-8">
-                    <TechStackBeam />
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Projects Section */}
-        <section id="projects" className="scroll-mt-16 bg-muted/30">
-          <div className="container py-16 md:py-20">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold tracking-tighter mb-4">
-                Recent Projects
-              </h2>
-              <p className="text-muted-foreground max-w-[600px] mx-auto">
-                A selection of recent work and side projects.
-              </p>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-              {projects.map((project, index) => (
-                <div key={index} className="h-full">
-                  <ProjectCard project={project} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Process Section */}
-        <section id="process" className="border-t bg-muted/50 scroll-mt-16">
-          <div className="container py-16 md:py-20">
-            <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">How It Works</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
-              A simple, transparent process from first contact to launch.
-            </p>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-              <div className="text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
-                  <MessageSquare className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-bold mb-2">1. Discovery</h3>
-                <p className="text-sm text-muted-foreground">
-                  We discuss your goals, requirements, and vision. I'll ask questions to understand exactly what you need.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
-                  <Palette className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-bold mb-2">2. Design</h3>
-                <p className="text-sm text-muted-foreground">
-                  I create mockups and wireframes for your approval before any coding begins. Revisions included.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
-                  <Code className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-bold mb-2">3. Develop</h3>
-                <p className="text-sm text-muted-foreground">
-                  I build your site with clean, modern code. You'll get regular updates and can provide feedback throughout.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform">
-                  <Rocket className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-bold mb-2">4. Launch</h3>
-                <p className="text-sm text-muted-foreground">
-                  Final testing, deployment, and handover. I'll make sure everything works perfectly before going live.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        {/* <section id="pricing" className="border-t scroll-mt-16">
-          <div className="container py-16 md:py-20">
-            <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Pricing</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
-              Transparent pricing for every budget. All packages include responsive design and modern best practices.
-            </p>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-              {pricingPlans.map((plan) => (
-                <Card key={plan.name} className={`card-glow flex flex-col h-full ${plan.popular ? 'border-primary shadow-lg gradient-border' : ''}`}>
-                  <CardHeader>
-                    {plan.popular && (
-                      <Badge className="w-fit mb-2">Most Popular</Badge>
-                    )}
-                    <CardTitle>{plan.name}</CardTitle>
-                    <div className="text-3xl font-bold">{plan.price}</div>
-                    <CardDescription>{plan.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <ul className="space-y-3">
-                      {plan.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <div className="p-6 pt-0">
-                    <Button className="w-full" variant={plan.popular ? 'default' : 'outline'} asChild>
-                      <Link to={`/plan/${plan.id}`}>View Details</Link>
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section> */}
-
-        {/* FAQ Section */}
-        <section id="faq" className="border-t bg-muted/50 scroll-mt-16">
-          <div className="container py-16 md:py-20">
-            <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Frequently Asked Questions</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
-              Common questions about working together.
-            </p>
-            <Accordion type="single" collapsible className="max-w-3xl mx-auto">
-              <AccordionItem value="timeline" className="bg-background rounded-lg border px-6">
-                <AccordionTrigger>How long does a typical project take?</AccordionTrigger>
-                <AccordionContent>
-                  A simple landing page takes 1-2 weeks. Multi-page websites typically take 3-4 weeks.
-                  Complex web applications vary based on features but usually 6-10 weeks. I'll give you
-                  an accurate timeline after our initial consultation.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="requirements" className="bg-background rounded-lg border px-6 mt-4">
-                <AccordionTrigger>What do you need from me to get started?</AccordionTrigger>
-                <AccordionContent>
-                  I'll need your content (text, images, logos), access to any existing accounts (domain, hosting),
-                  and a clear idea of what you want to achieve. Don't worry if you're not sure about everything—we'll
-                  figure it out together during the discovery phase.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="maintenance" className="bg-background rounded-lg border px-6 mt-4">
-                <AccordionTrigger>Do you offer ongoing maintenance?</AccordionTrigger>
-                <AccordionContent>
-                  Yes! I offer monthly maintenance packages starting at $100/month that include updates,
-                  security patches, backups, and minor content changes. This is optional but recommended
-                  for business-critical websites.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="revisions" className="bg-background rounded-lg border px-6 mt-4">
-                <AccordionTrigger>What if I'm not happy with the design?</AccordionTrigger>
-                <AccordionContent>
-                  I offer revisions at each stage of the project. During the design phase, we'll work together
-                  until you're completely satisfied before moving to development. If we can't reach an agreement
-                  on the design direction, I offer a full refund of the deposit.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="updates" className="bg-background rounded-lg border px-6 mt-4">
-                <AccordionTrigger>Will I be able to update the website myself?</AccordionTrigger>
-                <AccordionContent>
-                  Absolutely. For websites that need regular updates, I set up a content management system (CMS)
-                  that lets you edit text, images, and add new pages without any coding knowledge. I'll also
-                  provide training and documentation.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        </section>
-
-        {/* Contact Section */}
-        <section id="contact" className="border-t scroll-mt-16">
-          <div className="container py-16 md:py-20">
-            <h2 className="text-3xl font-bold tracking-tighter mb-4 text-center">Let's Work Together</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-[600px] mx-auto">
-              Have a project in mind? Fill out the form below or email me directly for a free consultation.
-            </p>
-
-            <div className="max-w-lg mx-auto">
-              {formStatus === "success" ? (
-                <Card>
-                  <CardContent className="pt-6 text-center">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Check className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">Message Sent!</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Thanks for reaching out. I'll get back to you within 24 hours.
-                    </p>
-                    <Button variant="outline" onClick={() => setFormStatus("idle")}>
-                      Send Another Message
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardContent className="pt-6">
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div>
-                        <label htmlFor="name" className="block text-sm font-medium mb-2">
-                          Name
-                        </label>
-                        <Input
-                          id="name"
-                          type="text"
-                          placeholder="Your name"
-                          required
-                          value={formState.name}
-                          onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="email" className="block text-sm font-medium mb-2">
-                          Email
-                        </label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="your@email.com"
-                          required
-                          value={formState.email}
-                          onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="message" className="block text-sm font-medium mb-2">
-                          Message
-                        </label>
-                        <Textarea
-                          id="message"
-                          placeholder="Tell me about your project..."
-                          rows={5}
-                          required
-                          value={formState.message}
-                          onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                        />
-                      </div>
-                      <Button type="submit" className="w-full" disabled={formStatus === "loading"}>
-                        {formStatus === "loading" ? (
-                          <>Sending...</>
-                        ) : (
-                          <>
-                            <Send className="mr-2 h-4 w-4" />
-                            Send Message
-                          </>
-                        )}
-                      </Button>
-                      {formStatus === "error" && (
-                        <p className="text-sm text-red-500 text-center mt-2">
-                          Failed to send message. Please try again or email directly.
-                        </p>
-                      )}
-                    </form>
-
-                    <div className="mt-6 pt-6 border-t text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Or email me directly at</p>
-                      <a
-                        href="mailto:pema.lhagyal.work@gmail.com"
-                        className="text-primary hover:underline font-medium"
-                      >
-                        pema.lhagyal.work@gmail.com
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t py-8 bg-muted/30">
-        <div className="container">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Pema Lhagyal. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4">
-              <Link
-                to="/privacy"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <a
-                href="mailto:pema.lhagyal.work@gmail.com"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
+      {/* Logo */}
+      <div className="fixed top-[calc(8vh-42px)] left-[5%] z-50">
+        {/* Mobile dropdown */}
+        <div
+          ref={pemaRef}
+          className="absolute top-full left-0 mt-0.5 md:hidden"
+          style={{ transformOrigin: 'top left' }}
+        >
+          <div style={{ borderRadius: '0 999px 999px 999px', padding: '14px 22px', background: '#000' }}>
+            <div className="flex flex-col gap-3">
+              <span className="text-xs text-white opacity-60">Based in Melbourne</span>
+              <a href="mailto:pema.lhagyal.work@gmail.com" className="text-xs text-white opacity-40 hover:opacity-100 transition-opacity">
                 pema.lhagyal.work@gmail.com
               </a>
             </div>
           </div>
         </div>
-      </footer>
-    </div >
+
+        <GlassCard style={{ borderRadius: '999px 999px 999px 0', padding: '8px 24px' }}>
+          <div
+            className="flex items-center"
+            onMouseEnter={() => { if (window.innerWidth >= 768) setPemaOpen(true) }}
+            onMouseLeave={() => { if (window.innerWidth >= 768) setPemaOpen(false) }}
+          >
+            <button
+              onClick={() => { if (window.innerWidth < 768) setPemaOpen(o => !o) }}
+              className="font-syncopate font-bold text-sm tracking-tight whitespace-nowrap"
+            >
+              Pema.
+            </button>
+            {/* Desktop pill expansion */}
+            <span
+              ref={pemaExpandRef}
+              className="hidden md:inline-flex overflow-hidden items-center"
+            >
+              <span className="flex items-center gap-4 pl-4">
+                <span className="w-px h-3 opacity-20" style={{ background: 'currentColor' }} />
+                <span className="text-xs opacity-60 whitespace-nowrap">Based in Melbourne</span>
+                <a href="mailto:pema.lhagyal.work@gmail.com" className="text-xs opacity-40 hover:opacity-100 transition-opacity whitespace-nowrap">
+                  pema.lhagyal.work@gmail.com
+                </a>
+              </span>
+            </span>
+          </div>
+        </GlassCard>
+      </div>
+
+      <main className="relative z-10 h-screen overflow-y-scroll snap-y snap-mandatory">
+
+        {/* ── Hero ── */}
+        <section id="hero" className="h-screen snap-start snap-always overflow-hidden">
+          <div className={`h-full flex flex-col justify-between ${FRAME}`}>
+            <div className="flex justify-end">
+              <p className="text-xs uppercase tracking-[0.3em] text-foreground/40">Melbourne, AU</p>
+            </div>
+
+            <div className="flex flex-col md:flex-row items-end justify-between gap-8">
+              <h1 className="text-[clamp(3rem,8vw,7rem)] font-bold leading-[0.92] tracking-tight">
+                Code Meets<br />
+                <span className="text-foreground/30">Strategy.</span>
+              </h1>
+              <img
+                src="/images/portfolioPhoto.webp"
+                alt="Pema Lhagyal"
+                fetchPriority="high"
+                className="w-20 h-20 md:w-28 md:h-28 rounded-full object-cover object-[0%_10%] shrink-0"
+              />
+            </div>
+
+            <div className="flex items-end justify-between">
+              <p className="text-xs text-foreground/40 max-w-[40ch] leading-relaxed">
+                Websites and web apps built with React, Next.js &amp; TypeScript —
+                from landing pages to complex platforms.
+              </p>
+              <button onClick={() => scrollToSection("about")} className="text-xs text-foreground/40 hover:text-foreground transition-colors">
+                Scroll ↓
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ── About ── */}
+        <section id="about" className="h-screen snap-start snap-always overflow-hidden">
+          <div className={`h-full flex flex-col justify-center ${FRAME}`}>
+            <div className="flex flex-col md:flex-row gap-8 md:gap-20 items-center">
+              <div className="md:w-1/2 flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
+                <h2 className="text-[clamp(1.75rem,4vw,3.5rem)] font-bold leading-tight tracking-tight shrink-0">
+                  Make Your<br />Business<br />Impossible<br />to Ignore.
+                </h2>
+                <ul className="leading-tight">
+                  {[
+                    "Full-stack.",
+                    "React & Next.js.",
+                    "Fast & clean.",
+                    "Built to last.",
+                  ].map(point => (
+                    <li key={point} className="text-[clamp(1.75rem,4vw,3.5rem)] font-bold tracking-tight text-foreground/30 md:whitespace-nowrap">
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="hidden md:flex md:w-1/2 flex-col justify-center">
+                <Suspense fallback={<div className="h-[500px]" />}>
+                  <TechStackBeam />
+                </Suspense>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Projects (one section per project) ── */}
+        {projects.map((project, index) => (
+          <section key={index} id={`project-${index}`} className="h-screen snap-start snap-always overflow-hidden">
+            <div className={`h-full flex flex-col justify-between ${FRAME}`}>
+
+              {/* top bar */}
+              <div className="flex justify-between items-start">
+                <span className="text-xs uppercase tracking-[0.3em] text-foreground/40">Selected Work</span>
+                <span className="text-xs font-mono text-foreground/30">{String(index + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}</span>
+              </div>
+
+              {/* two-col body */}
+              <div className="flex-1 flex flex-col md:flex-row gap-4 md:gap-16 items-center min-h-0 py-3 md:py-6">
+
+                {/* left — project info */}
+                <div className="md:w-1/4 flex flex-col gap-3 md:gap-5 shrink-0">
+                  <h2 className="text-[clamp(2rem,5vw,4rem)] font-bold leading-[0.92] tracking-tight">
+                    {project.title}
+                  </h2>
+                  <p className="text-sm text-foreground/60 leading-relaxed line-clamp-2 md:line-clamp-none">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map(tag => (
+                      <span key={tag} className="text-xs border border-foreground/20 px-3 py-1 rounded-full text-foreground/60">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  {project.logo && (
+                    <img
+                      src={project.logo}
+                      alt={`${project.title} logo`}
+                      className="w-14 h-14 object-contain opacity-90"
+                    />
+                  )}
+                </div>
+
+                {/* right — browser preview */}
+                {project.link && (
+                  <div className="flex flex-col w-full max-h-[45vh] md:max-h-none md:flex-1 md:h-full min-h-0 rounded-xl overflow-hidden border border-foreground/10 shadow-2xl">
+                    {/* browser chrome */}
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-foreground/5 border-b border-foreground/10 shrink-0">
+                      <span className="w-2.5 h-2.5 rounded-full bg-foreground/20" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-foreground/20" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-foreground/20" />
+                      <span className="ml-3 flex-1 bg-foreground/10 rounded-full text-[10px] text-foreground/40 px-3 py-0.5 truncate">
+                        {project.link.replace(/^https?:\/\//, '')}
+                      </span>
+                    </div>
+                    {/* screenshots or live iframe */}
+                    <div className="flex-1 min-h-0 overflow-y-auto">
+                      {project.previews ? (
+                        project.previews.map((src, i) => (
+                          <img key={i} src={src} alt={`${project.title} preview ${i + 1}`} className="w-full block" loading="lazy" decoding="async" />
+                        ))
+                      ) : project.preview ? (
+                        <img src={project.preview} alt={`${project.title} preview`} className="w-full block" loading="lazy" decoding="async" />
+                      ) : (
+                        <ProjectPreview url={project.link} title={project.title} />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* bottom bar */}
+              <div className="flex items-end justify-between">
+                {project.link ? (
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm border-b border-foreground/40 hover:border-foreground pb-0.5 transition-colors"
+                  >
+                    Visit Site →
+                  </a>
+                ) : (
+                  <span />
+                )}
+                {index < projects.length - 1 && (
+                  <button
+                    onClick={() => scrollToSection(`project-${index + 1}`)}
+                    className="text-xs text-foreground/40 hover:text-foreground transition-colors"
+                  >
+                    Next ↓
+                  </button>
+                )}
+              </div>
+
+            </div>
+          </section>
+        ))}
+
+        {/* ── Process ── */}
+        <section id="process" className="h-screen snap-start snap-always overflow-hidden">
+          <div className={`h-full flex flex-col justify-center gap-16 ${FRAME}`}>
+            <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-bold leading-tight tracking-tight max-w-[16ch]">
+              Simple.<br />Transparent.<br />Reliable.
+            </h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { num: "01", icon: MessageSquare, title: "Discovery", desc: "We align on your goals, audience, and requirements before anything is built." },
+                { num: "02", icon: Palette, title: "Design", desc: "Wireframes and mockups for your approval. Revisions included." },
+                { num: "03", icon: Code, title: "Develop", desc: "Clean, modern code. Regular updates so you're never in the dark." },
+                { num: "04", icon: Rocket, title: "Launch", desc: "Thorough testing, deployment, and handover — ready to go live." },
+              ].map(({ num, icon: Icon, title, desc }) => (
+                <div key={num} className="flex flex-col gap-3">
+                  <span className="text-xs text-foreground/30 font-mono">{num}</span>
+                  <Icon className="h-5 w-5 text-foreground/50" />
+                  <h3 className="font-semibold text-sm">{title}</h3>
+                  <p className="text-xs text-foreground/50 leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </section>
+
+        {/* ── FAQ ── */}
+        <section id="faq" className="h-screen snap-start snap-always overflow-hidden">
+          <div className={`h-full flex flex-col gap-6 ${FRAME}`}>
+            <h2 className="text-[clamp(1.5rem,3vw,2.5rem)] font-bold tracking-tight">Common Questions</h2>
+
+            <div className="flex-1 overflow-y-auto">
+              <Accordion type="single" collapsible className="w-full">
+                {[
+                  { id: "timeline", q: "How long does a typical project take?", a: "A landing page takes 1–2 weeks. Multi-page sites 3–4 weeks. Complex apps 6–10 weeks. I'll give you an accurate estimate after our first chat." },
+                  { id: "requirements", q: "What do you need from me to get started?", a: "Content (text, images, logos), access to existing accounts if any, and a clear goal. We'll sort everything else out in discovery." },
+                  { id: "maintenance", q: "Do you offer ongoing maintenance?", a: "Yes — maintenance packages from $100/month covering updates, security patches, backups, and minor content changes." },
+                  { id: "revisions", q: "What if I'm not happy with the design?", a: "I offer revisions at every stage. If we can't agree on a direction before development starts, I'll refund the deposit in full." },
+                  { id: "updates", q: "Will I be able to update the site myself?", a: "Yes. I set up a CMS for sites that need regular updates, with training and documentation included." },
+                ].map(({ id, q, a }) => (
+                  <AccordionItem key={id} value={id} className="border-b border-foreground/10">
+                    <AccordionTrigger className="text-sm font-medium text-left py-4 hover:no-underline">
+                      {q}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-sm text-foreground/60 pb-4 leading-relaxed">
+                      {a}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Contact ── */}
+        <section id="contact" className="h-screen snap-start snap-always overflow-hidden">
+          <div className={`h-full flex flex-col justify-center ${FRAME}`}>
+            <div className="flex flex-col md:flex-row gap-12 md:gap-20 items-start">
+              <div className="md:w-2/5 space-y-6">
+                <h2 className="text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight">
+                  Let's build<br />something<br />together.
+                </h2>
+                <p className="text-sm text-foreground/60 leading-relaxed">
+                  Have a project in mind? Reach out below or email me directly.
+                </p>
+                <a href="mailto:pema.lhagyal.work@gmail.com" className="block text-sm border-b border-foreground/40 hover:border-foreground pb-0.5 w-fit transition-colors">
+                  pema.lhagyal.work@gmail.com
+                </a>
+              </div>
+
+              <div className="md:w-3/5">
+                {formStatus === "success" ? (
+                  <div className="flex flex-col gap-4">
+                    <Check className="h-6 w-6 text-foreground/40" />
+                    <p className="font-semibold">Message sent.</p>
+                    <p className="text-sm text-foreground/60">I'll get back to you within 24 hours.</p>
+                    <button onClick={() => setFormStatus("idle")} className="text-sm underline underline-offset-4 w-fit text-foreground/50 hover:text-foreground transition-colors">
+                      Send another
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Input
+                        placeholder="Name"
+                        required
+                        value={formState.name}
+                        onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+                        className="bg-transparent border-foreground/20 focus:border-foreground rounded-none text-sm"
+                      />
+                      <Input
+                        type="email"
+                        placeholder="Email"
+                        required
+                        value={formState.email}
+                        onChange={(e) => setFormState({ ...formState, email: e.target.value })}
+                        className="bg-transparent border-foreground/20 focus:border-foreground rounded-none text-sm"
+                      />
+                    </div>
+                    <Textarea
+                      placeholder="Tell me about your project..."
+                      rows={4}
+                      required
+                      value={formState.message}
+                      onChange={(e) => setFormState({ ...formState, message: e.target.value })}
+                      className="bg-transparent border-foreground/20 focus:border-foreground rounded-none text-sm resize-none"
+                    />
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="submit"
+                        disabled={formStatus === "loading"}
+                        className="flex items-center gap-2 text-sm border-b border-foreground/40 hover:border-foreground pb-0.5 transition-colors disabled:opacity-40"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                        {formStatus === "loading" ? "Sending..." : "Send Message"}
+                      </button>
+                      {formStatus === "error" && (
+                        <p className="text-xs text-red-500">Failed to send. Please try again.</p>
+                      )}
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
   )
 }
 

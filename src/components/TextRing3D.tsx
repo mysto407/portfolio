@@ -1,81 +1,127 @@
-"use client"
-
-import { useState, useEffect } from "react"
+import { useRef } from "react"
+import { Canvas, useFrame } from "@react-three/fiber"
+import { Text } from "@react-three/drei"
+import * as THREE from "three"
 
 interface TextRing3DProps {
-  text: string
+  lines: string[]
   className?: string
+  fontSize?: number
+  radius?: number
+  lineSpacing?: number
 }
 
-export function TextRing3D({ text, className = "" }: TextRing3DProps) {
-  const [radius, setRadius] = useState(280)
-  const [perspective, setPerspective] = useState(320)
-
-  useEffect(() => {
-    const updateValues = () => {
-      const isMobile = window.innerWidth < 640
-      setRadius(isMobile ? 150 : 280)
-      setPerspective(isMobile ? 380 : 320)
-    }
-    updateValues()
-    window.addEventListener("resize", updateValues)
-    return () => window.removeEventListener("resize", updateValues)
-  }, [])
-
-  const fullText = `${text}  •  ${text}  •  `
+function RingLine({
+  text,
+  radius,
+  yOffset,
+  angleOffset,
+  fontSize,
+}: {
+  text: string
+  radius: number
+  yOffset: number
+  angleOffset: number
+  fontSize: number
+}) {
+  const fullText = `${text}  \u2022  ${text}  \u2022  `
   const characters = fullText.split("")
-  const anglePerChar = 360 / characters.length
+  const anglePerChar = (Math.PI * 2) / characters.length
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <style>{`
-        @keyframes rotateRing {
-          from { transform: rotateX(-15deg) rotateY(0deg); }
-          to { transform: rotateX(-15deg) rotateY(360deg); }
-        }
-        .text-ring-3d {
-          animation: rotateRing 20s linear infinite;
-        }
-      `}</style>
-      <div
-        className="relative"
-        style={{
-          perspective: `${perspective}px`,
-          perspectiveOrigin: "center center",
-        }}
-      >
-        <div
-          className="relative text-ring-3d"
-          style={{
-            width: `${radius * 2}px`,
-            height: "60px",
-            transformStyle: "preserve-3d",
-          }}
-        >
-          {characters.map((char, i) => {
-            const angle = i * anglePerChar
+    <group position={[0, yOffset, 0]}>
+      {characters.map((char, i) => {
+        const angle = i * anglePerChar + angleOffset
+        const x = Math.sin(angle) * radius
+        const z = Math.cos(angle) * radius
 
-            return (
-              <span
-                key={i}
-                className="absolute left-1/2 top-1/2 text-4xl sm:text-5xl md:text-6xl font-bold font-mono"
-                style={{
-                  transform: `
-                    translateX(-50%)
-                    translateY(-50%)
-                    rotateY(${angle}deg)
-                    translateZ(${radius}px)
-                    rotateY(180deg)
-                  `,
-                  transformStyle: "preserve-3d",
-                }}
-              >
-                {char === " " ? "\u00A0" : char}
-              </span>
-            )
-          })}
-        </div>
-      </div>
+        return (
+          <Text
+            key={i}
+            position={[x, 0, z]}
+            rotation={[0, Math.PI + angle, 0]}
+            fontSize={fontSize}
+            font="/fonts/Inter-Bold.woff"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {char === " " ? "\u00A0" : char}
+            <meshBasicMaterial
+              side={THREE.FrontSide}
+              color="black"
+              transparent
+              opacity={0.9}
+            />
+          </Text>
+        )
+      })}
+    </group>
+  )
+}
+
+function SpinningRing({
+  lines,
+  radius,
+  lineSpacing,
+  fontSize,
+}: {
+  lines: string[]
+  radius: number
+  lineSpacing: number
+  fontSize: number
+}) {
+  const groupRef = useRef<THREE.Group>(null)
+
+  useFrame((_, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.3
+    }
+  })
+
+  const totalHeight = lineSpacing * (lines.length - 1)
+
+  return (
+    <group ref={groupRef} rotation={[0.35, 0, 0]}>
+      {lines.map((line, i) => {
+        const yOffset = i * lineSpacing - totalHeight / 2
+        const angleOffset = 0
+
+        return (
+          <RingLine
+            key={i}
+            text={line}
+            radius={radius}
+            yOffset={yOffset}
+            angleOffset={angleOffset}
+            fontSize={fontSize}
+          />
+        )
+      })}
+    </group>
+  )
+}
+
+export function TextRing3D({
+  lines,
+  className = "",
+  fontSize = 0.4,
+  radius = 6,
+  lineSpacing = 0.55,
+}: TextRing3DProps) {
+  return (
+    <div className={className} style={{ minHeight: "200px" }}>
+      <Canvas
+        camera={{ position: [0, 0, 12], fov: 50 }}
+        gl={{ antialias: true, alpha: true }}
+        style={{ background: "transparent" }}
+      >
+        <SpinningRing
+          lines={lines}
+          radius={radius}
+          lineSpacing={lineSpacing}
+          fontSize={fontSize}
+        />
+      </Canvas>
     </div>
   )
 }

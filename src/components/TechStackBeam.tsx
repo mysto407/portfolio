@@ -53,13 +53,8 @@ export function TechStackBeam() {
 
   const techRefs = [ref0, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, ref10, ref11]
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-
-  const [radius, setRadius] = useState(120) // Default to smaller radius
-  const [containerHeight, setContainerHeight] = useState("h-[350px]") // Default to smaller height
+  const [radius, setRadius] = useState(120)
+  const [containerHeight, setContainerHeight] = useState("h-[350px]")
 
   useEffect(() => {
     setMounted(true)
@@ -91,7 +86,7 @@ export function TechStackBeam() {
         className="absolute z-20 flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full border-2 border-border bg-background shadow-lg"
       >
         <img
-          src="https://api.dicebear.com/9.x/lorelei/svg?seed=Christopher&beard[]&beardProbability=0&earrings[]&earringsColor[]&earringsProbability=0&eyebrows[]&frecklesProbability=100&glassesProbability=100&hair=variant07,variant11,variant12,variant43,variant06&hairAccessoriesColor[]&hairAccessoriesProbability=0"
+          src="/images/avatar.svg"
           alt="Avatar"
           className="h-12 w-12 md:h-16 md:w-16 rounded-full"
         />
