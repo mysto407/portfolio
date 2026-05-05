@@ -35,6 +35,44 @@ const NAV_ITEMS = [
   { id: 'contact', label: 'Contact.' },
 ]
 
+const BULGE_RADIUS = 100
+const BULGE_MAX_SCALE = 1.55
+
+function BulgeNav({ activeSection, onNav }: { activeSection: string | null; onNav: (id: string) => void }) {
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+  const handleMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    itemRefs.current.forEach(btn => {
+      if (!btn) return
+      const rect = btn.getBoundingClientRect()
+      const cx = rect.left + rect.width / 2
+      const dist = Math.abs(e.clientX - cx)
+      const t = Math.max(0, 1 - dist / BULGE_RADIUS)
+      btn.style.transform = `scale(${1 + (BULGE_MAX_SCALE - 1) * t * t})`
+    })
+  }, [])
+
+  const handleLeave = useCallback(() => {
+    itemRefs.current.forEach(btn => { if (btn) btn.style.transform = 'scale(1)' })
+  }, [])
+
+  return (
+    <div className="flex items-center gap-6" onMouseMove={handleMove} onMouseLeave={handleLeave}>
+      {NAV_ITEMS.map(({ id, label }, i) => (
+        <button
+          key={id}
+          ref={el => { itemRefs.current[i] = el }}
+          onClick={() => onNav(id)}
+          className={`text-xs whitespace-nowrap ${activeSection === id ? 'opacity-100 font-semibold' : 'opacity-50 hover:opacity-100'}`}
+          style={{ transformOrigin: 'center bottom', transition: 'transform 0.12s ease' }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 
 function SmoothWidth({ children }: { children: React.ReactNode }) {
   const outerRef = useRef<HTMLSpanElement>(null)
@@ -395,20 +433,7 @@ function App() {
       {/* Bottom-left nav — desktop */}
       <div className="hidden md:block fixed bottom-[calc(8vh-36px)] left-[5%] z-50">
         <GlassCard style={{ borderRadius: '0 999px 999px 999px', padding: '8px 24px' }}>
-          <div className="flex items-center gap-6">
-            {NAV_ITEMS.map(({ id, label }) => {
-              const isActive = activeSection === id
-              return (
-                <button
-                  key={id}
-                  onClick={() => scrollToSection(id)}
-                  className={`text-xs whitespace-nowrap transition-all ${isActive ? 'opacity-100 font-semibold' : 'opacity-50 hover:opacity-100'}`}
-                >
-                  {label}
-                </button>
-              )
-            })}
-          </div>
+          <BulgeNav activeSection={activeSection} onNav={scrollToSection} />
         </GlassCard>
       </div>
 
