@@ -205,7 +205,6 @@ const CARD_INSET = 2
 
 export function VibratingBorder() {
   const pathRef = useRef<SVGPathElement>(null)
-  const glowRef = useRef<SVGPathElement>(null)
   const clipRef = useRef<SVGPathElement>(null)
   const rectRef = useRef<RoundedRect>({ x: 0, y: 0, w: 0, h: 0, r: CORNER_RADIUS })
   const velocityRef = useSharedScrollVelocity('main')
@@ -240,10 +239,9 @@ export function VibratingBorder() {
       if (amplitude > IDLE_THRESHOLD) {
         wasVibrating = true
         phase += 0.07 + amplitude * 0.015
-        const [main, glow] = buildPaths(rectRef.current, amplitude, FREQUENCY, phase, SEGMENTS, INSET)
+        const [main] = buildPaths(rectRef.current, amplitude, FREQUENCY, phase, SEGMENTS, INSET)
         clipRef.current?.setAttribute('d', main)
         pathRef.current?.setAttribute('d', main)
-        glowRef.current?.setAttribute('d', glow)
       } else if (wasVibrating) {
         wasVibrating = false
         const [main] = buildPaths(rectRef.current, 0, FREQUENCY, phase, SEGMENTS, INSET)
@@ -260,11 +258,7 @@ export function VibratingBorder() {
         <clipPath id="vb-frame-clip" clipPathUnits="userSpaceOnUse">
           <path ref={clipRef} />
         </clipPath>
-        <filter id="vb-glow" x="-4%" y="-4%" width="108%" height="108%">
-          <feGaussianBlur stdDeviation="10" />
-        </filter>
       </defs>
-      <path ref={glowRef} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="20" filter="url(#vb-glow)" />
       <path ref={pathRef} fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="1.5" />
     </svg>
   )
