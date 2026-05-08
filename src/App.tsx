@@ -14,7 +14,8 @@ const TechStackBeam = lazy(() =>
 
 // Padding that positions content safely inside the glass frame
 // Frame: top 8vh, sides 5%, bottom 8vh — we add ~2vh/2% inner breathing room
-const FRAME = "pt-[11vh] pb-[10vh] px-[7%]"
+// max-sm extra bottom padding keeps content above the frame edge on mobile (Safari floating toolbar etc.)
+const FRAME = "pt-[11vh] pb-[10vh] px-[7%] max-sm:pb-[15vh]"
 
 const PROJECT_IDS = projects.map((_, i) => `project-${i}`)
 

@@ -189,7 +189,16 @@ function useSharedScrollVelocity(selector: string) {
 
 const IDLE_THRESHOLD = 0.05
 
+// Safari on iOS renders a floating bottom toolbar (~83px) that overlaps page content.
+// window.innerHeight includes that area, so we shrink the frame height to clear the toolbar.
+// Chrome on iOS excludes its chrome from window.innerHeight — no adjustment needed there.
+const IS_IOS_SAFARI = /iP(?:hone|od|ad)/.test(navigator.userAgent)
+  && /WebKit/.test(navigator.userAgent)
+  && !/CriOS|FxiOS/.test(navigator.userAgent)
+
 const FRAME_RECT = { left: 0.05, top: 0.08, width: 0.90, height: 0.84 }
+// Shorter height so the bottom edge clears Safari's floating toolbar (bottom at 87% vs 92%)
+const FRAME_RECT_IOS_SAFARI = { left: 0.05, top: 0.08, width: 0.90, height: 0.79 }
 const CORNER_RADIUS = 0
 const SEGMENTS = 360
 const FREQUENCY = 4
@@ -212,11 +221,12 @@ export function VibratingBorder() {
   // useLayoutEffect so clip path is set before first paint (avoids a flash of inverted screen)
   useLayoutEffect(() => {
     const update = () => {
+      const fr = IS_IOS_SAFARI ? FRAME_RECT_IOS_SAFARI : FRAME_RECT
       rectRef.current = {
-        x: window.innerWidth * FRAME_RECT.left,
-        y: window.innerHeight * FRAME_RECT.top,
-        w: window.innerWidth * FRAME_RECT.width,
-        h: window.innerHeight * FRAME_RECT.height,
+        x: window.innerWidth * fr.left,
+        y: window.innerHeight * fr.top,
+        w: window.innerWidth * fr.width,
+        h: window.innerHeight * fr.height,
         r: CORNER_RADIUS,
       }
       const [main] = buildPaths(rectRef.current, 0, FREQUENCY, 0, SEGMENTS, INSET)
