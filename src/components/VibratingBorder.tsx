@@ -189,16 +189,22 @@ function useSharedScrollVelocity(selector: string) {
 
 const IDLE_THRESHOLD = 0.05
 
-// Safari on iOS renders a floating bottom toolbar (~83px) that overlaps page content.
-// window.innerHeight includes that area, so we shrink the frame height to clear the toolbar.
-// Chrome on iOS excludes its chrome from window.innerHeight — no adjustment needed there.
-const IS_IOS_SAFARI = /iP(?:hone|od|ad)/.test(navigator.userAgent)
-  && /WebKit/.test(navigator.userAgent)
-  && !/CriOS|FxiOS/.test(navigator.userAgent)
+// Measure CSS 100vh in pixels so the JS frame rect matches pill positions set in CSS vh units.
+// On iOS Safari, window.innerHeight shrinks when the toolbar appears but CSS 100vh stays stable.
+// Cached per-session; reset on window resize (orientation change).
+let _cachedVh: number | null = null
+function get100vh(): number {
+  if (_cachedVh === null) {
+    const probe = document.createElement('div')
+    probe.style.cssText = 'position:fixed;top:0;left:0;height:100vh;width:0;visibility:hidden;pointer-events:none'
+    document.body.appendChild(probe)
+    _cachedVh = probe.offsetHeight || window.innerHeight
+    probe.remove()
+  }
+  return _cachedVh
+}
 
 const FRAME_RECT = { left: 0.05, top: 0.08, width: 0.90, height: 0.84 }
-// Shorter height so the bottom edge clears Safari's floating toolbar (bottom at 87% vs 92%)
-const FRAME_RECT_IOS_SAFARI = { left: 0.05, top: 0.08, width: 0.90, height: 0.79 }
 const CORNER_RADIUS = 0
 const SEGMENTS = 360
 const FREQUENCY = 4
@@ -221,20 +227,21 @@ export function VibratingBorder() {
   // useLayoutEffect so clip path is set before first paint (avoids a flash of inverted screen)
   useLayoutEffect(() => {
     const update = () => {
-      const fr = IS_IOS_SAFARI ? FRAME_RECT_IOS_SAFARI : FRAME_RECT
+      const vh = get100vh()
       rectRef.current = {
-        x: window.innerWidth * fr.left,
-        y: window.innerHeight * fr.top,
-        w: window.innerWidth * fr.width,
-        h: window.innerHeight * fr.height,
+        x: window.innerWidth * FRAME_RECT.left,
+        y: vh * FRAME_RECT.top,
+        w: window.innerWidth * FRAME_RECT.width,
+        h: vh * FRAME_RECT.height,
         r: CORNER_RADIUS,
       }
       const [main] = buildPaths(rectRef.current, 0, FREQUENCY, 0, SEGMENTS, INSET)
       clipRef.current?.setAttribute('d', main)
     }
+    const onResize = () => { _cachedVh = null; update() }
     update()
-    window.addEventListener('resize', update, { passive: true })
-    return () => window.removeEventListener('resize', update)
+    window.addEventListener('resize', onResize, { passive: true })
+    return () => window.removeEventListener('resize', onResize)
   }, [])
 
   useEffect(() => {
@@ -263,7 +270,7 @@ export function VibratingBorder() {
   }, [velocityRef])
 
   return (
-    <svg aria-hidden style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 32, overflow: 'visible' }}>
+    <svg aria-hidden style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', pointerEvents: 'none', zIndex: 32, overflow: 'visible' }}>
       <defs>
         <clipPath id="vb-frame-clip" clipPathUnits="userSpaceOnUse">
           <path ref={clipRef} />

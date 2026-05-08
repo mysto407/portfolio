@@ -23,9 +23,9 @@ export function GlassCard({ children, style }: { children?: ReactNode; style?: C
 export function GlassFrame() {
   return (
     <>
-      {/* Full-screen inversion overlay */}
+      {/* Full-screen inversion overlay — 100vh covers behind Safari's floating bottom toolbar */}
       <div style={{
-        position: 'fixed', inset: 0,
+        position: 'fixed', top: 0, left: 0, right: 0, height: '100vh',
         background: 'white',
         mixBlendMode: 'difference',
         zIndex: 15,
@@ -34,7 +34,7 @@ export function GlassFrame() {
 
       {/* Un-inversion clipped to the vibrating frame shape (clip path provided by VibratingBorder) */}
       <div style={{
-        position: 'fixed', inset: 0,
+        position: 'fixed', top: 0, left: 0, right: 0, height: '100vh',
         background: 'white',
         mixBlendMode: 'difference',
         zIndex: 20,
