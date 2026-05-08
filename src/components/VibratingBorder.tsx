@@ -270,7 +270,7 @@ export function VibratingBorder() {
   }, [velocityRef])
 
   return (
-    <svg aria-hidden style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', pointerEvents: 'none', zIndex: 32, overflow: 'visible' }}>
+    <svg aria-hidden style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 32, overflow: 'visible' }}>
       <defs>
         <clipPath id="vb-frame-clip" clipPathUnits="userSpaceOnUse">
           <path ref={clipRef} />
