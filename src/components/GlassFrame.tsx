@@ -23,21 +23,12 @@ export function GlassCard({ children, style }: { children?: ReactNode; style?: C
 export function GlassFrame() {
   return (
     <>
-      {/* Full-screen inversion overlay */}
+      {/* White background clipped to the frame shape, sitting below content (z-10).
+          No blend mode — black body shows outside the clip, white shows inside, content is untouched. */}
       <div style={{
         position: 'fixed', inset: 0,
         background: 'white',
-        mixBlendMode: 'difference',
-        zIndex: 15,
-        pointerEvents: 'none',
-      }} />
-
-      {/* Un-inversion clipped to the vibrating frame shape (clip path provided by VibratingBorder) */}
-      <div style={{
-        position: 'fixed', inset: 0,
-        background: 'white',
-        mixBlendMode: 'difference',
-        zIndex: 20,
+        zIndex: 5,
         pointerEvents: 'none',
         clipPath: 'url(#vb-frame-clip)',
       }} />

@@ -16,6 +16,10 @@ const TechStackBeam = lazy(() =>
 // Frame: top 8vh, sides 5%, bottom 8vh — we add ~2vh/2% inner breathing room
 const FRAME = "pt-[11vh] pb-[10vh] px-[7%]"
 
+// svh = "small viewport height" — never includes area behind iOS Safari's floating toolbar,
+// so the frame+pill unit always fits within the visible screen. Falls back to vh on older browsers.
+const VH = typeof CSS !== 'undefined' && CSS.supports('height', '1svh') ? 'svh' : 'vh'
+
 const PROJECT_IDS = projects.map((_, i) => `project-${i}`)
 
 const SECTION_TITLES: Record<string, string> = {
@@ -402,8 +406,8 @@ function App() {
         const projectTitle = projectIndex !== -1 ? (projects[projectIndex].pill ?? projects[projectIndex].title) : null
         return (
           <div
-            className="fixed top-[calc(8vh-42px)] right-[5%] z-50 transition-opacity duration-300"
-            style={{ opacity: sectionLabel ? 1 : 0, pointerEvents: 'none' }}
+            className="fixed right-[5%] z-50 transition-opacity duration-300"
+            style={{ top: `calc(8${VH} - 42px)`, opacity: sectionLabel ? 1 : 0, pointerEvents: 'none' }}
           >
             <GlassCard style={{ borderRadius: '999px 999px 0 999px', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: '8px', minHeight: '36px' }}>
               <SmoothWidth>
@@ -419,7 +423,7 @@ function App() {
       })()}
 
       {/* Get a Quote */}
-      <div className="fixed bottom-[calc(8vh-44px)] right-[5%] z-50">
+      <div className="fixed right-[5%] z-50" style={{ bottom: `calc(8${VH} - 44px)` }}>
         <GlassCard style={{ borderRadius: '999px 0 999px 999px', padding: '8px 24px' }}>
           <button
             onClick={() => scrollToSection("contact")}
@@ -431,14 +435,14 @@ function App() {
       </div>
 
       {/* Bottom-left nav — desktop */}
-      <div className="hidden md:block fixed bottom-[calc(8vh-36px)] left-[5%] z-50">
+      <div className="hidden md:block fixed left-[5%] z-50" style={{ bottom: `calc(8${VH} - 36px)` }}>
         <GlassCard style={{ borderRadius: '0 999px 999px 999px', padding: '8px 24px' }}>
           <BulgeNav activeSection={activeSection} onNav={scrollToSection} />
         </GlassCard>
       </div>
 
       {/* Bottom-left nav — mobile */}
-      <div className="md:hidden fixed bottom-[calc(8vh-44px)] left-[5%] z-50">
+      <div className="md:hidden fixed left-[5%] z-50" style={{ bottom: `calc(8${VH} - 44px)` }}>
         {/* Expanded menu — absolute so it doesn't shift the button */}
         <div
           ref={menuRef}
@@ -475,7 +479,7 @@ function App() {
       </div>
 
       {/* Logo */}
-      <div className="fixed top-[calc(8vh-42px)] left-[5%] z-50">
+      <div className="fixed left-[5%] z-50" style={{ top: `calc(8${VH} - 42px)` }}>
         {/* Mobile dropdown */}
         <div
           ref={pemaRef}
@@ -521,10 +525,10 @@ function App() {
         </GlassCard>
       </div>
 
-      <main className="relative z-10 h-screen overflow-y-scroll snap-y snap-mandatory">
+      <main className="relative z-10 h-screen supports-[height:100svh]:h-svh overflow-y-scroll snap-y snap-mandatory">
 
         {/* ── Hero ── */}
-        <section id="hero" className="h-screen snap-start snap-always overflow-hidden">
+        <section id="hero" className="h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
           <div className={`h-full flex flex-col justify-between ${FRAME}`}>
             <div className="flex justify-end">
               <p className="text-xs uppercase tracking-[0.3em] text-foreground/40">Melbourne, AU</p>
@@ -556,7 +560,7 @@ function App() {
         </section>
 
         {/* ── About ── */}
-        <section id="about" className="h-screen snap-start snap-always overflow-hidden">
+        <section id="about" className="h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
           <div className={`h-full flex flex-col justify-center ${FRAME}`}>
             <div className="flex flex-col md:flex-row gap-8 md:gap-20 items-center">
               <div className="md:w-1/2 flex flex-col md:flex-row md:items-baseline gap-4 md:gap-8">
@@ -587,7 +591,7 @@ function App() {
 
         {/* ── Projects (one section per project) ── */}
         {projects.map((project, index) => (
-          <section key={index} id={`project-${index}`} className="h-screen snap-start snap-always overflow-hidden">
+          <section key={index} id={`project-${index}`} className="h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
             <div className={`h-full flex flex-col justify-between ${FRAME}`}>
 
               {/* top bar */}
@@ -680,7 +684,7 @@ function App() {
         ))}
 
         {/* ── Process ── */}
-        <section id="process" className="h-screen snap-start snap-always overflow-hidden">
+        <section id="process" className="h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
           <div className={`h-full flex flex-col justify-center gap-16 ${FRAME}`}>
             <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-bold leading-tight tracking-tight max-w-[16ch]">
               Simple.<br />Transparent.<br />Reliable.
@@ -706,7 +710,7 @@ function App() {
         </section>
 
         {/* ── FAQ ── */}
-        <section id="faq" className="h-screen snap-start snap-always overflow-hidden">
+        <section id="faq" className="h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
           <div className={`h-full flex flex-col gap-6 ${FRAME}`}>
             <h2 className="text-[clamp(1.5rem,3vw,2.5rem)] font-bold tracking-tight">Common Questions</h2>
 
@@ -734,7 +738,7 @@ function App() {
         </section>
 
         {/* ── Contact ── */}
-        <section id="contact" className="h-screen snap-start snap-always overflow-hidden">
+        <section id="contact" className="h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
           <div className={`h-full flex flex-col justify-center ${FRAME}`}>
             <div className="flex flex-col md:flex-row gap-12 md:gap-20 items-start">
               <div className="md:w-2/5 space-y-6">

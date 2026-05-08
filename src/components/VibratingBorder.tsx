@@ -189,14 +189,16 @@ function useSharedScrollVelocity(selector: string) {
 
 const IDLE_THRESHOLD = 0.05
 
-// Measure CSS 100vh in pixels so the JS frame rect matches pill positions set in CSS vh units.
-// On iOS Safari, window.innerHeight shrinks when the toolbar appears but CSS 100vh stays stable.
+// Measure the reference viewport height so the JS frame rect matches pill positions set in CSS.
+// Use 100svh (small viewport height) — stable even with iOS Safari's floating toolbar — with 100vh fallback.
+// On browsers that don't support svh, assigning '100svh' is silently ignored and '100vh' stays.
 // Cached per-session; reset on window resize (orientation change).
 let _cachedVh: number | null = null
 function get100vh(): number {
   if (_cachedVh === null) {
     const probe = document.createElement('div')
     probe.style.cssText = 'position:fixed;top:0;left:0;height:100vh;width:0;visibility:hidden;pointer-events:none'
+    probe.style.height = '100svh'
     document.body.appendChild(probe)
     _cachedVh = probe.offsetHeight || window.innerHeight
     probe.remove()
