@@ -1,7 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, lazy, Suspense } from "react"
+import { HeroCanvas } from "@/components/HeroCanvas"
 import { animate, createTimeline } from 'animejs'
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Check, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { projects } from "./data/projects"
@@ -41,6 +40,9 @@ const NAV_ITEMS = [
 
 const BULGE_RADIUS = 100
 const BULGE_MAX_SCALE = 1.55
+
+const ROTATING_WORDS = ["Strategy.", "Design.", "Creativity.", "Vision.", "Craft.", "Impact."]
+
 
 function BulgeNav({ activeSection, onNav }: { activeSection: string | null; onNav: (id: string) => void }) {
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -287,6 +289,8 @@ function App() {
   const [formState, setFormState] = useState({ name: "", email: "", message: "" })
   const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [wordIndex, setWordIndex] = useState(0)
+  const [wordVisible, setWordVisible] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [pemaOpen, setPemaOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -354,6 +358,17 @@ function App() {
       }
     }
   }, [pemaOpen])
+
+  useEffect(() => {
+    const cycle = setInterval(() => {
+      setWordVisible(false)
+      setTimeout(() => {
+        setWordIndex(i => (i + 1) % ROTATING_WORDS.length)
+        setWordVisible(true)
+      }, 250)
+    }, 2200)
+    return () => clearInterval(cycle)
+  }, [])
 
   useEffect(() => {
     const ids = ["hero", ...Object.keys(SECTION_TITLES)]
@@ -528,8 +543,9 @@ function App() {
       <main className="relative z-10 h-screen supports-[height:100svh]:h-svh overflow-y-scroll snap-y snap-mandatory">
 
         {/* ── Hero ── */}
-        <section id="hero" className="h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
-          <div className={`h-full flex flex-col justify-between ${FRAME}`}>
+        <section id="hero" className="relative h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
+          <HeroCanvas />
+          <div className={`relative h-full flex flex-col justify-between ${FRAME}`}>
             <div className="flex justify-end">
               <p className="text-xs uppercase tracking-[0.3em] text-foreground/40">Melbourne, AU</p>
             </div>
@@ -537,7 +553,11 @@ function App() {
             <div className="flex flex-col md:flex-row items-end justify-between gap-8">
               <h1 className="text-[clamp(3rem,8vw,7rem)] font-bold leading-[0.92] tracking-tight">
                 Code Meets<br />
-                <span className="text-foreground/30">Strategy.</span>
+                <span
+                  className={`text-foreground/30 inline-block transition-all duration-[250ms] ${wordVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+                >
+                  {ROTATING_WORDS[wordIndex]}
+                </span>
               </h1>
               <img
                 src="/images/portfolioPhoto.webp"
@@ -552,9 +572,6 @@ function App() {
                 Websites and web apps built with React, Next.js &amp; TypeScript —
                 from landing pages to complex platforms.
               </p>
-              <button onClick={() => scrollToSection("about")} className="text-xs text-foreground/40 hover:text-foreground transition-colors">
-                Scroll ↓
-              </button>
             </div>
           </div>
         </section>
@@ -715,16 +732,19 @@ function App() {
             <h2 className="text-[clamp(1.5rem,3vw,2.5rem)] font-bold tracking-tight">Common Questions</h2>
 
             <div className="flex-1 overflow-y-auto">
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion type="single" collapsible className="w-full flex flex-col gap-2">
                 {[
                   { id: "timeline", q: "How long does a typical project take?", a: "A landing page takes 1–2 weeks. Multi-page sites 3–4 weeks. Complex apps 6–10 weeks. I'll give you an accurate estimate after our first chat." },
+                  { id: "pricing", q: "How do you charge for projects?", a: "I work on fixed-price quotes, not hourly rates. You get a clear number upfront — no surprise invoices at the end." },
                   { id: "requirements", q: "What do you need from me to get started?", a: "Content (text, images, logos), access to existing accounts if any, and a clear goal. We'll sort everything else out in discovery." },
-                  { id: "maintenance", q: "Do you offer ongoing maintenance?", a: "Yes — maintenance packages from $100/month covering updates, security patches, backups, and minor content changes." },
                   { id: "revisions", q: "What if I'm not happy with the design?", a: "I offer revisions at every stage. If we can't agree on a direction before development starts, I'll refund the deposit in full." },
                   { id: "updates", q: "Will I be able to update the site myself?", a: "Yes. I set up a CMS for sites that need regular updates, with training and documentation included." },
+                  { id: "maintenance", q: "Do you offer ongoing maintenance?", a: "Yes — maintenance packages from $100/month covering updates, security patches, backups, and minor content changes." },
+                  { id: "stack", q: "What technologies do you work with?", a: "React, Next.js, TypeScript, and Tailwind on the frontend. Node.js, Supabase, or any API your backend requires. I pick what fits, not what's trendy." },
+                  { id: "international", q: "Do you work with international clients?", a: "Yes — I've worked with clients across Europe, North America, and Asia. Time zones are never a blocker." },
                 ].map(({ id, q, a }) => (
-                  <AccordionItem key={id} value={id} className="border-b border-foreground/10">
-                    <AccordionTrigger className="text-sm font-medium text-left py-4 hover:no-underline">
+                  <AccordionItem key={id} value={id} className="border border-foreground/15 rounded-2xl px-5 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+                    <AccordionTrigger className="text-sm font-medium text-left py-3.5 hover:no-underline">
                       {q}
                     </AccordionTrigger>
                     <AccordionContent className="text-sm text-foreground/60 pb-4 leading-relaxed">
@@ -753,7 +773,7 @@ function App() {
                 </a>
               </div>
 
-              <div className="md:w-3/5">
+              <div className="md:w-3/5 max-md:w-full">
                 {formStatus === "success" ? (
                   <div className="flex flex-col gap-4">
                     <Check className="h-6 w-6 text-foreground/40" />
@@ -764,44 +784,44 @@ function App() {
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input
                         placeholder="Name"
                         required
                         value={formState.name}
                         onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                        className="bg-transparent border-foreground/20 focus:border-foreground rounded-none text-sm"
+                        className="w-full rounded-full border border-foreground/20 bg-transparent px-5 py-2.5 text-sm outline-none focus:border-foreground/60 transition-colors placeholder:text-foreground/40 shadow-[0_2px_12px_rgba(0,0,0,0.15)]"
                       />
-                      <Input
+                      <input
                         type="email"
                         placeholder="Email"
                         required
                         value={formState.email}
                         onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                        className="bg-transparent border-foreground/20 focus:border-foreground rounded-none text-sm"
+                        className="w-full rounded-full border border-foreground/20 bg-transparent px-5 py-2.5 text-sm outline-none focus:border-foreground/60 transition-colors placeholder:text-foreground/40 shadow-[0_2px_12px_rgba(0,0,0,0.15)]"
                       />
                     </div>
-                    <Textarea
+                    <textarea
                       placeholder="Tell me about your project..."
                       rows={4}
                       required
                       value={formState.message}
                       onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                      className="bg-transparent border-foreground/20 focus:border-foreground rounded-none text-sm resize-none"
+                      className="w-full rounded-3xl border border-foreground/20 bg-transparent px-5 py-3 text-sm outline-none focus:border-foreground/60 transition-colors resize-none placeholder:text-foreground/40 shadow-[0_2px_12px_rgba(0,0,0,0.15)]"
                     />
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-end gap-4 pt-1">
+                      {formStatus === "error" && (
+                        <p className="text-xs text-red-500">Failed to send. Please try again.</p>
+                      )}
                       <button
                         type="submit"
                         disabled={formStatus === "loading"}
-                        className="flex items-center gap-2 text-sm border-b border-foreground/40 hover:border-foreground pb-0.5 transition-colors disabled:opacity-40"
+                        className="flex items-center gap-2 text-sm border border-foreground/30 rounded-full px-6 py-2.5 hover:bg-foreground/5 transition-colors disabled:opacity-40 shadow-[0_2px_12px_rgba(0,0,0,0.15)]"
                       >
                         <Send className="h-3.5 w-3.5" />
                         {formStatus === "loading" ? "Sending..." : "Send Message"}
                       </button>
-                      {formStatus === "error" && (
-                        <p className="text-xs text-red-500">Failed to send. Please try again.</p>
-                      )}
                     </div>
                   </form>
                 )}
