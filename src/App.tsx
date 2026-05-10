@@ -1,5 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, lazy, Suspense } from "react"
 import { HeroCanvas } from "@/components/HeroCanvas"
+import { COLOR_PROFILES } from "@/data/colorProfiles"
 import { animate, createTimeline } from 'animejs'
 import { Check, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -293,6 +294,7 @@ function App() {
   const [wordVisible, setWordVisible] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [pemaOpen, setPemaOpen] = useState(false)
+  const [colorProfileIndex, setColorProfileIndex] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
   const pemaRef = useRef<HTMLDivElement>(null)
   const pemaExpandRef = useRef<HTMLSpanElement>(null)
@@ -409,8 +411,15 @@ function App() {
     setMenuOpen(false)
   }
 
+  const handleEmptyClick = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('button, a, input, textarea, select, [role="button"]')) {
+      setColorProfileIndex(i => (i + 1) % COLOR_PROFILES.length)
+    }
+  }, [])
+
   return (
-    <div className="relative h-screen w-full">
+    <div className="relative h-screen w-full" onClick={handleEmptyClick}>
       <GlassFrame />
       <VibratingBorder />
 
@@ -544,7 +553,7 @@ function App() {
 
         {/* ── Hero ── */}
         <section id="hero" className="relative h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
-          <HeroCanvas />
+          <HeroCanvas profile={COLOR_PROFILES[colorProfileIndex]} />
           <div className={`relative h-full flex flex-col justify-between ${FRAME}`}>
             <div className="flex justify-end">
               <p className="text-xs uppercase tracking-[0.3em] text-foreground/40">Melbourne, AU</p>

@@ -110,7 +110,7 @@ export function TechStackBeam() {
             <div className="z-20 flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full border-2 border-border bg-white dark:bg-neutral-900 p-2 shadow-md">
               <tech.icon className="h-5 w-5 md:h-6 md:w-6" />
             </div>
-            <span className="text-[10px] md:text-xs font-medium text-muted-foreground whitespace-nowrap bg-background/50 backdrop-blur-sm rounded px-1">{tech.name}</span>
+            <span className="text-[10px] md:text-xs font-medium text-muted-foreground whitespace-nowrap">{tech.name}</span>
           </div>
         )
       })}
