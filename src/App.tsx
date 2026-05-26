@@ -19,10 +19,6 @@ const TechStackBeam = lazy(() =>
 // Inner content gutter sits at 10% (col-2) horizontally — one Fibonacci cell inside the frame.
 const FRAME = "pt-[11vh] pb-[10vh] px-[10%]"
 
-// svh = "small viewport height" — never includes area behind iOS Safari's floating toolbar,
-// so the frame+pill unit always fits within the visible screen. Falls back to vh on older browsers.
-const VH = typeof CSS !== 'undefined' && CSS.supports('height', '1svh') ? 'svh' : 'vh'
-
 const PROJECT_IDS = projects.map((_, i) => `project-${i}`)
 
 const SECTION_TITLES: Record<string, string> = {
