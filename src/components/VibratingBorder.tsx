@@ -206,7 +206,9 @@ function get100vh(): number {
   return _cachedVh
 }
 
-const FRAME_RECT = { left: 0.05, top: 0.08, width: 0.90, height: 0.84 }
+// All fractions of vw — keeps the frame on the Fibonacci grid (1 cell = 5vw) at every aspect ratio.
+// top: 0.05 = first row line; height: 0.90 = 1 - 2*top (height field is informational; the rect builder derives it).
+const FRAME_RECT = { left: 0.05, top: 0.05, width: 0.90, height: 0.90 }
 const CORNER_RADIUS = 0
 const SEGMENTS = 360
 const FREQUENCY = 4
@@ -230,11 +232,20 @@ export function VibratingBorder() {
   useLayoutEffect(() => {
     const update = () => {
       const vh = get100vh()
+      const vw = window.innerWidth
+      // On phone, the bottom pill fills row-12↔row-14 (2 cells from the bottom
+      // edge) and the top pill sits near row-3 (~2 cells from top). Putting the
+      // frame's vertical inset at 2.25 cells (11.25vw) leaves a 0.25-cell gap
+      // between the frame edge and the pill. On wider viewports, use a 1-cell
+      // (5vw) symmetric inset so the frame top/bottom edges sit on Fibonacci row-1.
+      const verticalInsetPx = vw < 768
+        ? vw * 0.1125
+        : vw * FRAME_RECT.top
       rectRef.current = {
-        x: window.innerWidth * FRAME_RECT.left,
-        y: vh * FRAME_RECT.top,
-        w: window.innerWidth * FRAME_RECT.width,
-        h: vh * FRAME_RECT.height,
+        x: vw * FRAME_RECT.left,
+        y: verticalInsetPx,
+        w: vw * FRAME_RECT.width,
+        h: vh - 2 * verticalInsetPx,
         r: CORNER_RADIUS,
       }
       const [main] = buildPaths(rectRef.current, 0, FREQUENCY, 0, SEGMENTS, INSET)

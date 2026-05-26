@@ -5,6 +5,7 @@ import App from './App.tsx'
 import PlanDetails from './PlanDetails.tsx'
 import PrivacyPolicy from './PrivacyPolicy.tsx'
 import NotFound from './NotFound.tsx'
+import { GridOverlay } from './components/dev/GridOverlay'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      {import.meta.env.DEV && <GridOverlay />}
     </BrowserRouter>
   </React.StrictMode>,
 )

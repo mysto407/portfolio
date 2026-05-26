@@ -1,6 +1,8 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, lazy, Suspense } from "react"
 import { HeroCanvas } from "@/components/HeroCanvas"
 import { COLOR_PROFILES } from "@/data/colorProfiles"
+
+const GRAYSCALE_PROFILE = COLOR_PROFILES.find(p => p.grayscale) ?? COLOR_PROFILES[0]
 import { animate, createTimeline } from 'animejs'
 import { Check, Send, MessageSquare, Palette, Code, Rocket } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -12,9 +14,10 @@ const TechStackBeam = lazy(() =>
   import("@/components/TechStackBeam").then(m => ({ default: m.TechStackBeam }))
 )
 
-// Padding that positions content safely inside the glass frame
-// Frame: top 8vh, sides 5%, bottom 8vh — we add ~2vh/2% inner breathing room
-const FRAME = "pt-[11vh] pb-[10vh] px-[7%]"
+// Padding that positions content safely inside the glass frame.
+// Frame edges: top/bottom 5vw (Fibonacci row-1), sides 5% (col-1).
+// Inner content gutter sits at 10% (col-2) horizontally — one Fibonacci cell inside the frame.
+const FRAME = "pt-[11vh] pb-[10vh] px-[10%]"
 
 // svh = "small viewport height" — never includes area behind iOS Safari's floating toolbar,
 // so the frame+pill unit always fits within the visible screen. Falls back to vh on older browsers.
@@ -43,7 +46,6 @@ const BULGE_RADIUS = 100
 const BULGE_MAX_SCALE = 1.55
 
 const ROTATING_WORDS = ["Strategy.", "Design.", "Creativity.", "Vision.", "Craft.", "Impact."]
-
 
 function BulgeNav({ activeSection, onNav }: { activeSection: string | null; onNav: (id: string) => void }) {
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -294,7 +296,6 @@ function App() {
   const [wordVisible, setWordVisible] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [pemaOpen, setPemaOpen] = useState(false)
-  const [colorProfileIndex, setColorProfileIndex] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
   const pemaRef = useRef<HTMLDivElement>(null)
   const pemaExpandRef = useRef<HTMLSpanElement>(null)
@@ -411,15 +412,8 @@ function App() {
     setMenuOpen(false)
   }
 
-  const handleEmptyClick = useCallback((e: React.MouseEvent) => {
-    const target = e.target as HTMLElement
-    if (!target.closest('button, a, input, textarea, select, [role="button"]')) {
-      setColorProfileIndex(i => (i + 1) % COLOR_PROFILES.length)
-    }
-  }, [])
-
   return (
-    <div className="relative h-screen w-full" onClick={handleEmptyClick}>
+    <div className="relative h-screen w-full">
       <GlassFrame />
       <VibratingBorder />
 
@@ -430,10 +424,10 @@ function App() {
         const projectTitle = projectIndex !== -1 ? (projects[projectIndex].pill ?? projects[projectIndex].title) : null
         return (
           <div
-            className="fixed right-[5%] z-50 transition-opacity duration-300"
-            style={{ top: `calc(8${VH} - 42px)`, opacity: sectionLabel ? 1 : 0, pointerEvents: 'none' }}
+            className="fixed z-50 transition-opacity duration-300 h-[5vh] md:h-[5vw]"
+            style={{ top: 0, right: '5%', opacity: sectionLabel ? 1 : 0, pointerEvents: 'none' }}
           >
-            <GlassCard style={{ borderRadius: '999px 999px 0 999px', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: '8px', minHeight: '36px' }}>
+            <GlassCard style={{ borderRadius: 0, height: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 24px', boxShadow: 'none' }}>
               <SmoothWidth>
                 <span className="font-syncopate text-sm tracking-tight">
                   <span className="md:hidden">{projectTitle ?? sectionLabel}</span>
@@ -446,9 +440,9 @@ function App() {
         )
       })()}
 
-      {/* Get a Quote */}
-      <div className="fixed right-[5%] z-50" style={{ bottom: `calc(8${VH} - 44px)` }}>
-        <GlassCard style={{ borderRadius: '999px 0 999px 999px', padding: '8px 24px' }}>
+      {/* Get a Quote — rectangle. Mobile: extended to 40% wide; desktop: 15% wide. Mobile 5vh tall, desktop 5vw tall. */}
+      <div className="fixed z-50 h-[5vh] md:h-[5vw] w-[40%] md:w-[15%]" style={{ bottom: 0, right: '5%' }}>
+        <GlassCard style={{ borderRadius: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px', boxShadow: 'none' }}>
           <button
             onClick={() => scrollToSection("contact")}
             className="font-syncopate text-sm tracking-tight whitespace-nowrap"
@@ -458,15 +452,15 @@ function App() {
         </GlassCard>
       </div>
 
-      {/* Bottom-left nav — desktop */}
-      <div className="hidden md:block fixed left-[5%] z-50" style={{ bottom: `calc(8${VH} - 36px)` }}>
-        <GlassCard style={{ borderRadius: '0 999px 999px 999px', padding: '8px 24px' }}>
+      {/* Bottom-left nav — desktop only: col-1→col-7 (width 60%). */}
+      <div className="hidden md:block fixed z-50" style={{ bottom: 0, left: '5%', width: '60%', height: '5vw' }}>
+        <GlassCard style={{ borderRadius: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px', boxShadow: 'none' }}>
           <BulgeNav activeSection={activeSection} onNav={scrollToSection} />
         </GlassCard>
       </div>
 
-      {/* Bottom-left nav — mobile */}
-      <div className="md:hidden fixed left-[5%] z-50" style={{ bottom: `calc(8${VH} - 44px)` }}>
+      {/* Bottom-left nav — mobile only: extended by 1 cell. */}
+      <div className="md:hidden fixed z-50" style={{ bottom: 0, left: '5%', width: '20%', height: '5vh' }}>
         {/* Expanded menu — absolute so it doesn't shift the button */}
         <div
           ref={menuRef}
@@ -492,7 +486,7 @@ function App() {
         </div>
 
         {/* Menu trigger */}
-        <GlassCard style={{ borderRadius: '0 999px 999px 999px', padding: '8px 20px' }}>
+        <GlassCard style={{ borderRadius: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', boxShadow: 'none' }}>
           <button
             onClick={() => setMenuOpen(o => !o)}
             className="font-syncopate text-sm tracking-tight"
@@ -502,8 +496,8 @@ function App() {
         </GlassCard>
       </div>
 
-      {/* Logo */}
-      <div className="fixed left-[5%] z-50" style={{ top: `calc(8${VH} - 42px)` }}>
+      {/* Logo — rectangle. Mobile: col-1→col-4 (20%); desktop: col-1→col-3 (15%). Mobile 5vh tall, desktop 5vw tall. */}
+      <div className="fixed z-50 h-[5vh] md:h-[5vw] w-[20%] md:w-[15%]" style={{ top: 0, left: '5%' }}>
         {/* Mobile dropdown */}
         <div
           ref={pemaRef}
@@ -520,9 +514,9 @@ function App() {
           </div>
         </div>
 
-        <GlassCard style={{ borderRadius: '999px 999px 999px 0', padding: '8px 24px' }}>
+        <GlassCard style={{ borderRadius: 0, width: '100%', height: '100%', boxShadow: 'none' }}>
           <div
-            className="flex items-center"
+            className="flex items-center justify-center w-full h-full px-4"
             onMouseEnter={() => { if (window.innerWidth >= 768) setPemaOpen(true) }}
             onMouseLeave={() => { if (window.innerWidth >= 768) setPemaOpen(false) }}
           >
@@ -553,35 +547,37 @@ function App() {
 
         {/* ── Hero ── */}
         <section id="hero" className="relative h-screen supports-[height:100svh]:h-svh snap-start snap-always overflow-hidden">
-          <HeroCanvas profile={COLOR_PROFILES[colorProfileIndex]} />
+          <HeroCanvas profile={GRAYSCALE_PROFILE} />
           <div className={`relative h-full flex flex-col justify-between ${FRAME}`}>
             <div className="flex justify-end">
               <p className="text-xs uppercase tracking-[0.3em] text-foreground/40">Melbourne, AU</p>
             </div>
 
-            <div className="flex flex-col md:flex-row items-end justify-between gap-8">
-              <h1 className="text-[clamp(3rem,8vw,7rem)] font-bold leading-[0.92] tracking-tight">
-                Code Meets<br />
+            {/* Each line at its own Fibonacci column. Mobile: col-1/col-2/col-3 (5/10/20%); desktop: cols at vw positions. */}
+            <div className="absolute left-0 right-0 top-[23.9vh] md:top-[10.5vw]">
+              <h1 className="text-[clamp(4.5rem,14vw,12rem)] font-bold leading-[0.62] tracking-tight">
+                <span className="block ml-[47.5%] md:ml-[9.5vw] text-foreground/85">Code</span>
+                <span className="block ml-[35%] md:ml-[19.5vw] text-foreground/60">Meets</span>
                 <span
-                  className={`text-foreground/30 inline-block transition-all duration-[250ms] ${wordVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+                  className={`text-foreground/30 block ml-[10%] md:ml-[34.5vw] transition-all duration-[250ms] ${wordVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
                 >
                   {ROTATING_WORDS[wordIndex]}
                 </span>
               </h1>
-              <img
-                src="/images/portfolioPhoto.webp"
-                alt="Pema Lhagyal"
-                fetchPriority="high"
-                className="w-20 h-20 md:w-28 md:h-28 rounded-full object-cover object-[0%_10%] shrink-0"
-              />
             </div>
+            {/* Profile photo. Mobile: col-5 (40%) / row-6 (46.1vh); desktop: col-3 (20vw) / row-6 (67.3vh). */}
+            <img
+              src="/images/portfolioPhoto.webp"
+              alt="Pema Lhagyal"
+              fetchPriority="high"
+              className="absolute w-16 h-16 md:w-[13.5vh] md:h-[13.5vh] rounded-full object-cover object-[0%_10%] top-[46.1vh] left-[40%] md:top-[67.3vh] md:left-[20vw]"
+            />
 
-            <div className="flex items-end justify-between">
-              <p className="text-xs text-foreground/40 max-w-[40ch] leading-relaxed">
-                Websites and web apps built with React, Next.js &amp; TypeScript —
-                from landing pages to complex platforms.
-              </p>
-            </div>
+            {/* Paragraph. Mobile: bottom area col-1→col-7 (5%→65%) at mobile-row-8 (80vh); desktop: narrow column at row-6 (67.3vh) between col-2 and col-3. */}
+            <p className="absolute text-xs text-foreground/40 leading-relaxed top-[46.1vh] left-[10%] w-[30%] md:top-[67.3vh] md:left-[10vw] md:w-[10vw]">
+              Websites and web apps built with React, Next.js &amp; TypeScript —
+              from landing pages to complex platforms.
+            </p>
           </div>
         </section>
 

@@ -1,9 +1,17 @@
 export interface ColorProfile {
   name: string
   stops: readonly (readonly [number, number, number])[]
+  // When true, HeroCanvas ignores `stops` and renders with its grayscale LUT
+  // (white-on-dark outside the frame, black-on-light inside).
+  grayscale?: boolean
 }
 
 export const COLOR_PROFILES: ColorProfile[] = [
+  {
+    name: 'grayscale',
+    grayscale: true,
+    stops: [[0x00, 0x00, 0x00], [0xff, 0xff, 0xff]],
+  },
   {
     name: 'fire',
     stops: [
